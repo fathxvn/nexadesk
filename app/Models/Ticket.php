@@ -32,4 +32,9 @@ class Ticket extends Model
             'assigned_to_user_id'
         );
     }
+
+    public function activities()
+    {
+        return $this->hasMany(TicketActivity::class);
+    }
 }

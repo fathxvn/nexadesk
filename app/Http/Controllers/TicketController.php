@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
+use App\Models\TicketActivity;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -37,11 +38,17 @@ class TicketController extends Controller
             'priority' => 'required|in:low,medium,high',
         ]);
 
-        auth()->user()->tickets()->create([
+        $ticket = auth()->user()->tickets()->create([
             'title' => $validated['title'],
             'description' => $validated['description'],
             'priority' => $validated['priority'],
             'status' => 'open',
+        ]);
+
+        $ticket->activities()->create([
+            'user_id' => auth()->id(),
+            'type' => 'created',
+            'description' => 'Ticket created',
         ]);
 
         return redirect()->route('tickets.index');
@@ -53,7 +60,12 @@ class TicketController extends Controller
             abort(403);
         }
 
-        $ticket->load(['user', 'comments.user', 'assignedTechnician']);
+        $ticket->load([
+            'user', 
+            'comments.user', 
+            'assignedTechnician',
+            'activities.user',
+            ]);
 
         $technicians = User::whereIn('role', ['admin', 'technician'])
             ->orderBy('name')
@@ -128,9 +140,17 @@ class TicketController extends Controller
         $validated = $request->validate([
             'status' => 'required|in:open,in_progress,resolved,closed',
         ]);
+        $oldStatus = $ticket->status;
 
         $ticket->update([
             'status' => $validated['status'],
+        ]);
+
+
+        $ticket->activities()->create([
+            'user_id' => auth()->id(),
+            'type' => 'status_changed',
+            'description' => 'Status changed from ' . ucfirst(str_replace('_', ' ', $oldStatus)) . ' to ' . ucfirst(str_replace('_', ' ', $validated['status'])),
         ]);
 
         return back()->with('success', 'Status ticket berhasil diubah.');
@@ -151,19 +171,35 @@ class TicketController extends Controller
             'message' => $validated['message'],
         ]);
 
+        $ticket->activities()->create([
+            'user_id' => auth()->id(),
+            'type' => 'comment',
+            'description' => 'Comment added',
+        ]);
+
         return back()->with('success', 'Komentar berhasil ditambahkan.');
     }
 
     public function assignTechnician(Request $request, Ticket $ticket)
-    {
-        $validated = $request->validate([
-            'assigned_to_user_id' => 'nullable|exists:users,id',
-        ]);
+        {
+            $validated = $request->validate([
+                'assigned_to_user_id' => 'nullable|exists:users,id',
+            ]);
 
-        $ticket->update([
-            'assigned_to_user_id' => $validated['assigned_to_user_id'],
-        ]);
+            $technician = User::find($validated['assigned_to_user_id']);
 
-        return back()->with('success', 'Technician berhasil di-assign.');
-    }
+            $ticket->update([
+                'assigned_to_user_id' => $validated['assigned_to_user_id'],
+            ]);
+
+            $ticket->activities()->create([
+                'user_id' => auth()->id(),
+                'type' => 'assigned',
+                'description' => $technician
+                    ? 'Assigned to ' . $technician->name
+                    : 'Technician unassigned',
+            ]);
+
+            return back()->with('success', 'Technician berhasil di-assign.');
+        }
 }

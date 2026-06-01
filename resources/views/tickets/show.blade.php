@@ -196,6 +196,51 @@
                         </div>
                     @endif
 
+                    <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="mb-5">
+        <h3 class="text-lg font-semibold text-slate-900">
+            Activity Timeline
+        </h3>
+        <p class="text-sm text-slate-500">
+            Riwayat perubahan pada ticket ini.
+        </p>
+    </div>
+
+    @forelse($ticket->activities->sortByDesc('created_at') as $activity)
+        <div class="relative flex gap-4 pb-6 last:pb-0">
+            <div class="flex flex-col items-center">
+                <div class="h-9 w-9 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-semibold">
+                    {{ strtoupper(substr($activity->user->name ?? 'S', 0, 1)) }}
+                </div>
+
+                @if(! $loop->last)
+                    <div class="mt-2 h-full w-px bg-slate-200"></div>
+                @endif
+            </div>
+
+            <div class="flex-1">
+                <div class="flex items-center justify-between gap-4">
+                    <p class="text-sm font-medium text-slate-900">
+                        {{ $activity->description }}
+                    </p>
+
+                    <span class="text-xs text-slate-400 whitespace-nowrap">
+                        {{ $activity->created_at->diffForHumans() }}
+                    </span>
+                </div>
+
+                <p class="mt-1 text-xs text-slate-500">
+                    By {{ $activity->user->name ?? 'System' }}
+                </p>
+            </div>
+        </div>
+    @empty
+        <div class="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
+            Belum ada aktivitas pada ticket ini.
+        </div>
+    @endforelse
+</div>
+
                     @if (auth()->user()->isStaff())
                         <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
                             <div class="flex items-center gap-2 mb-4">
