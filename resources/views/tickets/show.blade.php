@@ -22,7 +22,7 @@
                     </p>
                 </div>
 
-                <a href="{{ route('tickets.index') }}"
+                <a href="{{ auth()->user()->isStaff() ? route('staff.tickets.index') : route('tickets.index') }}"
                    class="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-xl text-sm text-slate-600 hover:bg-white">
                     <x-heroicon-o-arrow-left class="w-4 h-4" />
                     Back
@@ -116,6 +116,31 @@
                             </div>
 
                             <div class="border border-slate-100 rounded-xl p-4">
+                                <p class="text-xs text-slate-500 mb-2">Assigned Technician</p>
+
+                                @if ($ticket->assignedTechnician)
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">
+                                            {{ strtoupper(substr($ticket->assignedTechnician->name, 0, 1)) }}
+                                        </div>
+
+                                        <div>
+                                            <p class="text-sm font-medium text-slate-900">
+                                                {{ $ticket->assignedTechnician->name }}
+                                            </p>
+                                            <p class="text-xs text-slate-500">
+                                                {{ ucfirst($ticket->assignedTechnician->role) }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                        Unassigned
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="border border-slate-100 rounded-xl p-4">
                                 <p class="text-xs text-slate-500 mb-2">Created</p>
                                 <p class="text-sm font-medium text-slate-900">
                                     {{ $ticket->created_at->format('d M Y, H:i') }}
@@ -125,8 +150,51 @@
                                 </p>
                             </div>
 
+                            <div class="border border-slate-100 rounded-xl p-4">
+                                <p class="text-xs text-slate-500 mb-2">Last Updated</p>
+                                <p class="text-sm font-medium text-slate-900">
+                                    {{ $ticket->updated_at->format('d M Y, H:i') }}
+                                </p>
+                                <p class="text-xs text-slate-500 mt-1">
+                                    {{ $ticket->updated_at->diffForHumans() }}
+                                </p>
+                            </div>
+
                         </div>
                     </div>
+
+                    @if (auth()->user()->isStaff())
+                        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                            <div class="flex items-center gap-2 mb-4">
+                                <x-heroicon-o-user-plus class="w-5 h-5 text-slate-400" />
+                                <h2 class="text-lg font-semibold text-slate-900">
+                                    Assign Technician
+                                </h2>
+                            </div>
+
+                            <form method="POST" action="{{ route('staff.tickets.assign', $ticket) }}">
+                                @csrf
+                                @method('PATCH')
+
+                                <div class="flex flex-wrap gap-3 items-center">
+                                    <select name="assigned_to_user_id" class="rounded-xl border-slate-300 text-sm">
+                                        @foreach ($technicians as $technician)
+                                            <option value="{{ $technician->id }}"
+                                                {{ $ticket->assigned_to_user_id == $technician->id ? 'selected' : '' }}>
+                                                {{ $technician->name }} - {{ ucfirst($technician->role) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700">
+                                        <x-heroicon-o-check class="w-4 h-4" />
+                                        Assign
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    @endif
 
                     @if (auth()->user()->isStaff())
                         <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">

@@ -58,6 +58,7 @@
                                 <tr>
                                 <th class="px-6 py-3 text-left font-medium">Ticket</th>
                                 <th class="px-6 py-3 text-left font-medium">Reporter</th>
+                                <th class=" px-6 py-3 text-left font-medium">Assigned To</th>
                                 <th class="px-6 py-3 text-left font-medium">Priority</th>
                                 <th class="px-6 py-3 text-left font-medium">Status</th>
                                 <th class="px-6 py-3 text-left font-medium">Created</th>
@@ -87,6 +88,30 @@
                                                 {{ $ticket->user->name ?? 'Unknown' }}
                                             </span>
                                         </div>
+                                    </td>
+
+                                    <td class="px-6 py-4">
+                                        @if($ticket->assignedTechnician)
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-semibold">
+                                                    {{ strtoupper(substr($ticket->assignedTechnician->name, 0, 1)) }}
+                                                </div>
+
+                                                <div>
+                                                    <div class="font-medium text-slate-900">
+                                                        {{ $ticket->assignedTechnician->name }}
+                                                    </div>
+
+                                                    <div class="text-xs text-slate-500">
+                                                        {{ ucfirst($ticket->assignedTechnician->role) }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
+                                                Unassigned
+                                            </span>
+                                        @endif
                                     </td>
 
                                     <td class="px-6 py-4">
@@ -125,7 +150,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-10 text-center text-slate-500">
+                                    <td colspan="7" class="px-6 py-10 text-center text-slate-500">
                                         No tickets found.
                                     </td>
                                 </tr>

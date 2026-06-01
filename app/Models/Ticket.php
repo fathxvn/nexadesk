@@ -8,6 +8,7 @@ class Ticket extends Model
 {
     protected $fillable = [
         'user_id',
+        'assigned_to_user_id',
         'title',
         'description',
         'priority',
@@ -22,5 +23,13 @@ class Ticket extends Model
     public function comments()
     {
         return $this->hasMany(TicketComment::class);
+    }
+
+    public function assignedTechnician()
+    {
+        return $this->belongsTo(
+            User::class,
+            'assigned_to_user_id'
+        );
     }
 }

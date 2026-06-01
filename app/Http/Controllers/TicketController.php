@@ -3,22 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
-    public function index() 
+    public function index()
     {
         $query = Ticket::where('user_id', auth()->id());
 
-        if(request('status')) {
+        if (request('status')) {
             $query->where('status', request('status'));
         }
 
-        $tickets = $query->latest()->get();
+        $tickets = $query
+            ->with(['assignedTechnician'])
+            ->latest()
+            ->get();
 
         return view('tickets.index', compact('tickets'));
-    }   
+    }
 
     public function create()
     {
@@ -26,7 +30,7 @@ class TicketController extends Controller
     }
 
     public function store(Request $request)
-    {        
+    {
         $validated = $request->validate([
             'title' => 'required|max:255',
             'description' => 'required',
@@ -49,9 +53,13 @@ class TicketController extends Controller
             abort(403);
         }
 
-        $ticket->load(['user', 'comments.user']);
+        $ticket->load(['user', 'comments.user', 'assignedTechnician']);
 
-        return view('tickets.show', compact('ticket'));
+        $technicians = User::whereIn('role', ['admin', 'technician'])
+            ->orderBy('name')
+            ->get();
+
+        return view('tickets.show', compact('ticket', 'technicians'));
     }
 
     public function edit(Ticket $ticket)
@@ -77,7 +85,7 @@ class TicketController extends Controller
 
         $ticket->update($validated);
 
-        return redirect()->route('tickets.show', $ticket);  
+        return redirect()->route('tickets.show', $ticket);
     }
 
     public function destroy(Ticket $ticket)
@@ -107,7 +115,10 @@ class TicketController extends Controller
             $query->where('title', 'like', '%' . request('search') . '%');
         }
 
-        $tickets = $query->with('user')->latest()->get();
+        $tickets = $query
+            ->with(['user', 'assignedTechnician'])
+            ->latest()
+            ->get();
 
         return view('staff.tickets.index', compact('tickets'));
     }
@@ -122,7 +133,7 @@ class TicketController extends Controller
             'status' => $validated['status'],
         ]);
 
-        return back();
+        return back()->with('success', 'Status ticket berhasil diubah.');
     }
 
     public function storeComment(Request $request, Ticket $ticket)
@@ -140,7 +151,19 @@ class TicketController extends Controller
             'message' => $validated['message'],
         ]);
 
-        return back();
+        return back()->with('success', 'Komentar berhasil ditambahkan.');
+    }
+
+    public function assignTechnician(Request $request, Ticket $ticket)
+    {
+        $validated = $request->validate([
+            'assigned_to_user_id' => 'nullable|exists:users,id',
+        ]);
+
+        $ticket->update([
+            'assigned_to_user_id' => $validated['assigned_to_user_id'],
+        ]);
+
+        return back()->with('success', 'Technician berhasil di-assign.');
     }
 }
-

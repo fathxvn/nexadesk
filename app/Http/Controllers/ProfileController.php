@@ -15,14 +15,6 @@ class ProfileController extends Controller
      * Display the user's profile form.
      */
 
-
-    public function staffIndex()
-    {
-        $tickets = Ticket::latest()->get();
-
-        return view('staff.tickets.index', compact('tickets'));
-    }
-
     public function edit(Request $request): View
     {
         return view('profile.edit', [
