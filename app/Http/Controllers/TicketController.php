@@ -51,7 +51,12 @@ class TicketController extends Controller
             'description' => 'Ticket created',
         ]);
 
-        return redirect()->route('tickets.index');
+        return redirect()->route('tickets.index')
+            ->with('notification', [
+                'type' => 'success',
+                'title' => 'Ticket created',
+                'message' => 'The ticket has been submitted successfully.',
+            ]);
     }
 
     public function show(Ticket $ticket)
@@ -97,7 +102,12 @@ class TicketController extends Controller
 
         $ticket->update($validated);
 
-        return redirect()->route('tickets.show', $ticket);
+        return redirect()->route('tickets.show', $ticket)
+            ->with('notification', [
+                'type' => 'info',
+                'title' => 'Ticket updated',
+                'message' => 'The ticket details have been updated.',
+            ]);
     }
 
     public function destroy(Ticket $ticket)
@@ -108,7 +118,12 @@ class TicketController extends Controller
 
         $ticket->delete();
 
-        return redirect()->route('tickets.index');
+        return redirect()->route('tickets.index')
+            ->with('notification', [
+                'type' => 'danger',
+                'title' => 'Ticket deleted',
+                'message' => 'The ticket has been permanently deleted.',
+            ]);
     }
 
     public function staffIndex()
@@ -153,7 +168,11 @@ class TicketController extends Controller
             'description' => 'Status changed from ' . ucfirst(str_replace('_', ' ', $oldStatus)) . ' to ' . ucfirst(str_replace('_', ' ', $validated['status'])),
         ]);
 
-        return back()->with('success', 'Status ticket berhasil diubah.');
+        return back()->with('notification', [
+            'type' => 'info',
+            'title' => 'Status updated',
+            'message' => 'Ticket status has been updated.',
+        ]);
     }
 
     public function storeComment(Request $request, Ticket $ticket)
@@ -177,7 +196,11 @@ class TicketController extends Controller
             'description' => 'Comment added',
         ]);
 
-        return back()->with('success', 'Komentar berhasil ditambahkan.');
+        return back()->with('notification', [
+            'type' => 'success',
+            'title' => 'Comment added',
+            'message' => 'Your comment has been posted.',
+        ]);
     }
 
     public function assignTechnician(Request $request, Ticket $ticket)
@@ -200,6 +223,10 @@ class TicketController extends Controller
                     : 'Technician unassigned',
             ]);
 
-            return back()->with('success', 'Technician berhasil di-assign.');
+            return back()->with('notification', [
+                'type' => 'success',
+                'title' => 'Technician assigned',
+                'message' => 'The ticket has been assigned successfully.',
+            ]);
         }
 }

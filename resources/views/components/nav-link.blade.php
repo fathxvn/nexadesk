@@ -1,11 +1,17 @@
-@props(['active'])
+@props(['active', 'icon' => null])
 
 @php
 $classes = ($active ?? false)
-            ? 'inline-flex items-center px-1 pt-1 border-b-2 border-indigo-400 text-sm font-medium leading-5 text-gray-900 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out'
-            : 'inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out';
+            ? 'flex w-full items-center gap-3 rounded-xl bg-indigo-50 px-3 py-2.5 text-sm font-semibold text-indigo-700 transition-all duration-300 ease-in-out'
+            : 'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-all duration-300 ease-in-out hover:bg-slate-100 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-100';
 @endphp
 
-<a {{ $attributes->merge(['class' => $classes]) }}>
-    {{ $slot }}
+<a {{ $attributes->merge(['class' => $classes]) }} x-bind:class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''">
+    @if ($icon)
+        <x-dynamic-component :component="$icon" class="h-5 w-5 shrink-0" />
+    @endif
+
+    <span class="truncate transition-all duration-300 ease-in-out" :class="sidebarCollapsed ? 'lg:sr-only' : ''">
+        {{ $slot }}
+    </span>
 </a>

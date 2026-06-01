@@ -1,54 +1,73 @@
 <x-app-layout>
-    <div class="max-w-3xl mx-auto py-10 px-6">
-        <h1 class="text-2xl font-bold mb-6">Create Ticket</h1>
+    <div class="min-h-screen bg-slate-50">
+        <div class="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm font-medium text-indigo-600">New Request</p>
+                    <h1 class="mt-1 text-2xl font-semibold tracking-tight text-slate-800">Create Ticket</h1>
+                    <p class="mt-2 text-sm text-slate-500">Share the issue details so the support team can help quickly.</p>
+                </div>
 
-        <form method="POST" action="{{ route('tickets.store') }}"
-              class="bg-white rounded-xl shadow p-6 space-y-5">
-            @csrf
-
-            <div>
-                <label class="block font-medium mb-1">Title</label>
-                <input type="text" name="title"
-                       class="w-full border-gray-300 rounded-lg"
-                       value="{{ old('title') }}">
-                @error('title')
-                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label class="block font-medium mb-1">Description</label>
-                <textarea name="description"
-                          class="w-full border-gray-300 rounded-lg"
-                          rows="5">{{ old('description') }}</textarea>
-                @error('description')
-                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label class="block font-medium mb-1">Priority</label>
-                <select name="priority" class="w-full border-gray-300 rounded-lg">
-                    <option value="low">Low</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="high">High</option>
-                </select>
-                @error('priority')
-                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="flex gap-3">
-                <button type="submit"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg">
-                    Save Ticket
-                </button>
-
-                <a href="{{ route('tickets.index') }}"
-                   class="px-4 py-2 rounded-lg border">
+                <a href="{{ route('tickets.index') }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-indigo-700">
                     Cancel
                 </a>
             </div>
-        </form>
+
+            <form method="POST" action="{{ route('tickets.store') }}" class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                @csrf
+
+                <div class="space-y-6 p-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Title</label>
+                        <input
+                            type="text"
+                            name="title"
+                            class="mt-1 w-full rounded-xl border-slate-300 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            value="{{ old('title') }}"
+                            placeholder="Short summary of the issue"
+                        >
+                        @error('title')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Description</label>
+                        <textarea
+                            name="description"
+                            class="mt-1 w-full rounded-xl border-slate-300 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            rows="7"
+                            placeholder="Describe what happened, what you expected, and any useful context."
+                        >{{ old('description') }}</textarea>
+                        @error('description')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Priority</label>
+                        <select name="priority" class="mt-1 w-full rounded-xl border-slate-300 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                        @error('priority')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50/80 px-6 py-4 sm:flex-row sm:justify-end">
+                    <a href="{{ route('tickets.index') }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-indigo-700">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                        <x-heroicon-o-check class="h-4 w-4" />
+                        Save Ticket
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </x-app-layout>
