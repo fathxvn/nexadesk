@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use App\Models\TicketActivity;
+use App\Models\TicketInternalNote;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
 {
@@ -35,15 +37,30 @@ class TicketController extends Controller
         $validated = $request->validate([
             'title' => 'required|max:255',
             'description' => 'required',
+            'category' => 'required|in:network,hardware,software,email,account_access,printer,other',
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'priority' => 'required|in:low,medium,high',
         ]);
 
-        $ticket = auth()->user()->tickets()->create([
+        $ticketData = [
             'title' => $validated['title'],
             'description' => $validated['description'],
+            'category' => $validated['category'],
             'priority' => $validated['priority'],
             'status' => 'open',
-        ]);
+            'sla_started_at' => now(),
+        ];
+
+        $ticketData['sla_due_at'] = (new Ticket())->slaDueAtForPriority(
+            $validated['priority'],
+            $ticketData['sla_started_at']
+        );
+
+        if ($request->hasFile('attachment')) {
+            $ticketData['attachment_path'] = $request->file('attachment')->store('tickets', 'public');
+        }
+
+        $ticket = auth()->user()->tickets()->create($ticketData);
 
         $ticket->activities()->create([
             'user_id' => auth()->id(),
@@ -72,6 +89,10 @@ class TicketController extends Controller
             'activities.user',
             ]);
 
+        if (auth()->user()->isStaff()) {
+            $ticket->load('internalNotes.user');
+        }
+
         $technicians = User::whereIn('role', ['admin', 'technician'])
             ->orderBy('name')
             ->get();
@@ -97,8 +118,27 @@ class TicketController extends Controller
         $validated = $request->validate([
             'title' => 'required|max:255',
             'description' => 'required',
+            'category' => 'required|in:network,hardware,software,email,account_access,printer,other',
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'priority' => 'required|in:low,medium,high',
         ]);
+
+        if ($request->hasFile('attachment')) {
+            if ($ticket->attachment_path) {
+                Storage::disk('public')->delete($ticket->attachment_path);
+            }
+
+            $validated['attachment_path'] = $request->file('attachment')->store('tickets', 'public');
+        }
+
+        unset($validated['attachment']);
+
+        if ($ticket->priority !== $validated['priority'] && ! $ticket->isSlaCompleted()) {
+            $validated['sla_due_at'] = $ticket->slaDueAtForPriority(
+                $validated['priority'],
+                $ticket->sla_started_at ?? now()
+            );
+        }
 
         $ticket->update($validated);
 
@@ -114,6 +154,10 @@ class TicketController extends Controller
     {
         if ($ticket->user_id !== auth()->id()) {
             abort(403);
+        }
+
+        if ($ticket->attachment_path) {
+            Storage::disk('public')->delete($ticket->attachment_path);
         }
 
         $ticket->delete();
@@ -150,6 +194,23 @@ class TicketController extends Controller
         return view('staff.tickets.index', compact('tickets'));
     }
 
+    public function assignedTickets()
+    {
+        $query = Ticket::query()
+            ->whereNotNull('assigned_to_user_id');
+
+        if (auth()->user()->role === 'technician') {
+            $query->where('assigned_to_user_id', auth()->id());
+        }
+
+        $tickets = $query
+            ->with(['user', 'assignedTechnician'])
+            ->latest()
+            ->get();
+
+        return view('staff.tickets.assigned', compact('tickets'));
+    }
+
     public function updateStatus(Request $request, Ticket $ticket)
     {
         $validated = $request->validate([
@@ -157,9 +218,21 @@ class TicketController extends Controller
         ]);
         $oldStatus = $ticket->status;
 
-        $ticket->update([
+        $statusData = [
             'status' => $validated['status'],
-        ]);
+        ];
+
+        if (in_array($validated['status'], ['resolved', 'closed'], true)) {
+            $statusData['sla_resolved_at'] = now();
+        } else {
+            $statusData['sla_resolved_at'] = null;
+        }
+
+        if ($ticket->sla_due_at && now()->greaterThan($ticket->sla_due_at)) {
+            $statusData['sla_breached_at'] = $ticket->sla_breached_at ?? now();
+        }
+
+        $ticket->update($statusData);
 
 
         $ticket->activities()->create([
@@ -203,6 +276,29 @@ class TicketController extends Controller
         ]);
     }
 
+    public function storeInternalNote(Request $request, Ticket $ticket)
+    {
+        if (! auth()->user()->isStaff()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'body' => 'required|string|max:2000',
+        ]);
+
+        TicketInternalNote::create([
+            'ticket_id' => $ticket->id,
+            'user_id' => auth()->id(),
+            'body' => $validated['body'],
+        ]);
+
+        return back()->with('notification', [
+            'type' => 'warning',
+            'title' => 'Internal note added',
+            'message' => 'Private note has been saved.',
+        ]);
+    }
+
     public function assignTechnician(Request $request, Ticket $ticket)
         {
             $validated = $request->validate([
@@ -224,7 +320,7 @@ class TicketController extends Controller
             ]);
 
             return back()->with('notification', [
-                'type' => 'success',
+                'type' => 'info',
                 'title' => 'Technician assigned',
                 'message' => 'The ticket has been assigned successfully.',
             ]);

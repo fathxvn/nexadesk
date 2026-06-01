@@ -61,6 +61,10 @@
                             <x-nav-link icon="heroicon-o-users" :href="route('staff.tickets.index')" :active="request()->routeIs('staff.tickets.*') || request()->routeIs('tickets.show')" title="Staff Tickets">
                                 {{ __('Staff Tickets') }}
                             </x-nav-link>
+
+                            <x-nav-link icon="heroicon-o-ticket" :href="route('assigned.tickets')" :active="request()->routeIs('assigned.tickets')" title="Assigned Tickets">
+                                {{ __('Assigned Tickets') }}
+                            </x-nav-link>
                         @endif
                     </div>
                 </div>
@@ -192,6 +196,10 @@
                             @if ($isStaff)
                                 <x-responsive-nav-link icon="heroicon-o-users" :href="route('staff.tickets.index')" :active="request()->routeIs('staff.tickets.*') || request()->routeIs('tickets.show')">
                                     {{ __('Staff Tickets') }}
+                                </x-responsive-nav-link>
+
+                                <x-responsive-nav-link icon="heroicon-o-ticket" :href="route('assigned.tickets')" :active="request()->routeIs('assigned.tickets')">
+                                    {{ __('Assigned Tickets') }}
                                 </x-responsive-nav-link>
                             @endif
                         </div>

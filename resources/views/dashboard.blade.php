@@ -19,8 +19,8 @@
                     'value' => $inProgressTickets,
                     'helper' => 'Currently being handled',
                     'icon' => 'heroicon-o-clock',
-                    'iconClass' => 'bg-amber-50 text-amber-600',
-                    'barClass' => 'bg-amber-500',
+                    'iconClass' => 'bg-violet-50 text-violet-600',
+                    'barClass' => 'bg-violet-500',
                 ],
                 [
                     'label' => 'Resolved',
@@ -60,7 +60,7 @@
                     'value' => $inProgressTickets,
                     'helper' => 'Assigned or under review',
                     'icon' => 'heroicon-o-clock',
-                    'iconClass' => 'bg-amber-50 text-amber-600',
+                    'iconClass' => 'bg-violet-50 text-violet-600',
                 ],
                 [
                     'label' => 'Resolved',
@@ -68,6 +68,37 @@
                     'helper' => 'Completed with resolution',
                     'icon' => 'heroicon-o-check-circle',
                     'iconClass' => 'bg-emerald-50 text-emerald-600',
+                ],
+            ];
+
+            $slaCards = [
+                [
+                    'label' => 'Overdue',
+                    'value' => $slaOverdueTickets,
+                    'helper' => 'Past SLA due time',
+                    'icon' => 'heroicon-o-exclamation-triangle',
+                    'iconClass' => 'bg-red-50 text-red-600',
+                ],
+                [
+                    'label' => 'Due Soon',
+                    'value' => $slaDueSoonTickets,
+                    'helper' => 'Due within 4 hours',
+                    'icon' => 'heroicon-o-clock',
+                    'iconClass' => 'bg-amber-50 text-amber-600',
+                ],
+                [
+                    'label' => 'On Track',
+                    'value' => $slaOnTrackTickets,
+                    'helper' => 'Inside SLA window',
+                    'icon' => 'heroicon-o-shield-check',
+                    'iconClass' => 'bg-emerald-50 text-emerald-600',
+                ],
+                [
+                    'label' => 'Completed',
+                    'value' => $slaCompletedTickets,
+                    'helper' => 'Resolved or closed',
+                    'icon' => 'heroicon-o-check-circle',
+                    'iconClass' => 'bg-slate-100 text-slate-600',
                 ],
             ];
         @endphp
@@ -95,6 +126,27 @@
 
             <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 @foreach ($metricCards as $card)
+                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-sm font-medium text-slate-500">{{ $card['label'] }}</p>
+                                <p class="mt-2 text-3xl font-semibold tracking-tight text-slate-800">
+                                    {{ $card['value'] }}
+                                </p>
+                            </div>
+
+                            <div class="flex h-11 w-11 items-center justify-center rounded-xl {{ $card['iconClass'] }}">
+                                <x-dynamic-component :component="$card['icon']" class="h-5 w-5" />
+                            </div>
+                        </div>
+
+                        <p class="mt-4 text-sm text-slate-500">{{ $card['helper'] }}</p>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                @foreach ($slaCards as $card)
                     <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                         <div class="flex items-start justify-between gap-4">
                             <div>
@@ -210,6 +262,7 @@
                                 <th class="px-6 py-3 text-left font-semibold">Reporter</th>
                                 <th class="px-6 py-3 text-left font-semibold">Priority</th>
                                 <th class="px-6 py-3 text-left font-semibold">Status</th>
+                                <th class="px-6 py-3 text-left font-semibold">SLA</th>
                                 <th class="px-6 py-3 text-left font-semibold">Created</th>
                                 <th class="px-6 py-3 text-right font-semibold">Action</th>
                             </tr>
@@ -249,12 +302,18 @@
                                         @if ($ticket->status === 'open')
                                             <span class="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-100">Open</span>
                                         @elseif ($ticket->status === 'in_progress')
-                                            <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-100">In Progress</span>
+                                            <span class="inline-flex rounded-full bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">In Progress</span>
                                         @elseif ($ticket->status === 'resolved')
                                             <span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">Resolved</span>
                                         @else
                                             <span class="inline-flex rounded-full bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Closed</span>
                                         @endif
+                                    </td>
+
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset {{ $ticket->slaBadgeClasses() }}">
+                                            {{ $ticket->slaLabel() }}
+                                        </span>
                                     </td>
 
                                     <td class="px-6 py-4 text-slate-500">
@@ -264,16 +323,20 @@
                                     <td class="px-6 py-4 text-right">
                                         <a
                                             href="{{ route('tickets.show', $ticket) }}"
-                                            class="inline-flex items-center gap-1 rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100"
+                                            title="View ticket"
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                                         >
-                                            View
-                                            <x-heroicon-o-arrow-right class="h-4 w-4" />
+                                            <span class="sr-only">View ticket</span>
+                                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12Z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                            </svg>
                                         </a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-14 text-center">
+                                    <td colspan="7" class="px-6 py-14 text-center">
                                         <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
                                             <x-heroicon-o-ticket class="h-6 w-6" />
                                         </div>

@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Ticket;
 use App\Models\TicketComment;
+use App\Models\TicketInternalNote;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -69,5 +70,10 @@ class User extends Authenticatable
             Ticket::class,
             'assigned_to_user_id'
         );
+    }
+
+    public function ticketInternalNotes()
+    {
+        return $this->hasMany(TicketInternalNote::class);
     }
 }

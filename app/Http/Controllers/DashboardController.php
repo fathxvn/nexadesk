@@ -21,6 +21,19 @@ class DashboardController extends Controller
         $inProgressTickets = (clone $query)->where('status', 'in_progress')->count();
         $resolvedTickets = (clone $query)->where('status', 'resolved')->count();
         $closedTickets = (clone $query)->where('status', 'closed')->count();
+        $slaTickets = (clone $query)->get();
+        $slaOverdueTickets = $slaTickets
+            ->filter(fn (Ticket $ticket) => $ticket->slaStatus() === 'overdue')
+            ->count();
+        $slaDueSoonTickets = $slaTickets
+            ->filter(fn (Ticket $ticket) => $ticket->slaStatus() === 'due_soon')
+            ->count();
+        $slaOnTrackTickets = $slaTickets
+            ->filter(fn (Ticket $ticket) => $ticket->slaStatus() === 'on_track')
+            ->count();
+        $slaCompletedTickets = $slaTickets
+            ->filter(fn (Ticket $ticket) => $ticket->slaStatus() === 'completed')
+            ->count();
 
         $recentTickets = (clone $query)
             ->with('user')
@@ -34,6 +47,10 @@ class DashboardController extends Controller
             'inProgressTickets',
             'resolvedTickets',
             'closedTickets',
+            'slaOverdueTickets',
+            'slaDueSoonTickets',
+            'slaOnTrackTickets',
+            'slaCompletedTickets',
             'recentTickets'
         ));
     }

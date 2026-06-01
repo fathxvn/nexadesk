@@ -43,19 +43,19 @@
                 $notificationStyles = [
                     'success' => [
                         'icon' => 'heroicon-o-check-circle',
-                        'accent' => 'bg-emerald-50 text-emerald-600',
+                        'accent' => 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100',
                     ],
                     'info' => [
                         'icon' => 'heroicon-o-information-circle',
-                        'accent' => 'bg-blue-50 text-blue-600',
+                        'accent' => 'bg-blue-50 text-blue-600 ring-1 ring-blue-100',
                     ],
                     'warning' => [
                         'icon' => 'heroicon-o-exclamation-triangle',
-                        'accent' => 'bg-amber-50 text-amber-600',
+                        'accent' => 'bg-amber-50 text-amber-600 ring-1 ring-amber-100',
                     ],
                     'danger' => [
-                        'icon' => 'heroicon-o-x-circle',
-                        'accent' => 'bg-red-50 text-red-600',
+                        'icon' => 'heroicon-o-trash',
+                        'accent' => 'bg-red-50 text-red-600 ring-1 ring-red-100',
                     ],
                 ];
 

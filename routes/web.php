@@ -58,11 +58,17 @@ Route::middleware(['auth', 'role:admin,technician'])->group(function () {
     Route::get('/staff/tickets', [TicketController::class, 'staffIndex'])
         ->name('staff.tickets.index');
 
+    Route::get('/assigned-tickets', [TicketController::class, 'assignedTickets'])
+        ->name('assigned.tickets');
+
     Route::patch('/staff/tickets/{ticket}/status', [TicketController::class, 'updateStatus'])
         ->name('staff.tickets.updateStatus');
 
     Route::patch('/staff/tickets/{ticket}/assign', [TicketController::class, 'assignTechnician'])
         ->name('staff.tickets.assign');
+
+    Route::post('/staff/tickets/{ticket}/internal-notes', [TicketController::class, 'storeInternalNote'])
+        ->name('staff.tickets.internal-notes.store');
 });
 
 require __DIR__.'/auth.php';
