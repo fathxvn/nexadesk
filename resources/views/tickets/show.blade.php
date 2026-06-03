@@ -34,29 +34,29 @@
                     <div class="flex flex-wrap items-center gap-2">
                         <p class="text-sm font-medium text-indigo-600">Ticket #{{ $ticket->id }}</p>
 
-                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset {{ $categoryClasses[$category] ?? $categoryClasses['other'] }}">
+                        <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset {{ $categoryClasses[$category] ?? $categoryClasses['other'] }}">
                             {{ $categoryLabels[$category] ?? $categoryLabels['other'] }}
                         </span>
 
                         @if ($ticket->priority === 'high')
-                            <span class="inline-flex rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-100">High</span>
+                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-100">High</span>
                         @elseif ($ticket->priority === 'medium')
-                            <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-100">Medium</span>
+                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-100">Medium</span>
                         @else
-                            <span class="inline-flex rounded-full bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Low</span>
+                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Low</span>
                         @endif
 
                         @if ($ticket->status === 'open')
-                            <span class="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-100">Open</span>
+                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-100">Open</span>
                         @elseif ($ticket->status === 'in_progress')
-                            <span class="inline-flex rounded-full bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">In Progress</span>
+                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">In Progress</span>
                         @elseif ($ticket->status === 'resolved')
-                            <span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">Resolved</span>
+                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">Resolved</span>
                         @else
-                            <span class="inline-flex rounded-full bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Closed</span>
+                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Closed</span>
                         @endif
 
-                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset {{ $ticket->slaBadgeClasses() }}">
+                        <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset {{ $ticket->slaBadgeClasses() }}">
                             SLA {{ $ticket->slaLabel() }}
                         </span>
                     </div>
@@ -65,8 +65,11 @@
                         {{ $ticket->title }}
                     </h1>
 
-                    <p class="mt-2 text-sm text-slate-500">
-                        Reported by {{ $ticket->user->name ?? 'Unknown User' }} &middot; {{ $ticket->created_at->diffForHumans() }}
+                    <p class="mt-2 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-slate-500">
+                        <span>Reported by</span>
+                        <span class="max-w-full truncate font-medium text-slate-600 sm:max-w-xs">{{ $ticket->user->name ?? 'Unknown User' }}</span>
+                        <span>&middot;</span>
+                        <span class="whitespace-nowrap">{{ $ticket->created_at->diffForHumans() }}</span>
                     </p>
                 </div>
 
@@ -164,7 +167,7 @@
                             <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
                                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Category</p>
                                 <div class="mt-3">
-                                    <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset {{ $categoryClasses[$category] ?? $categoryClasses['other'] }}">
+                                    <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset {{ $categoryClasses[$category] ?? $categoryClasses['other'] }}">
                                         {{ $categoryLabels[$category] ?? $categoryLabels['other'] }}
                                     </span>
                                 </div>
@@ -174,11 +177,11 @@
                                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Priority</p>
                                 <div class="mt-3">
                                     @if ($ticket->priority === 'high')
-                                        <span class="inline-flex rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-100">High</span>
+                                        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-100">High</span>
                                     @elseif ($ticket->priority === 'medium')
-                                        <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-100">Medium</span>
+                                        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-100">Medium</span>
                                     @else
-                                        <span class="inline-flex rounded-full bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Low</span>
+                                        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Low</span>
                                     @endif
                                 </div>
                             </div>
@@ -187,13 +190,13 @@
                                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Status</p>
                                 <div class="mt-3">
                                     @if ($ticket->status === 'open')
-                                        <span class="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-100">Open</span>
+                                        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-100">Open</span>
                                     @elseif ($ticket->status === 'in_progress')
-                                        <span class="inline-flex rounded-full bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">In Progress</span>
+                                        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">In Progress</span>
                                     @elseif ($ticket->status === 'resolved')
-                                        <span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">Resolved</span>
+                                        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">Resolved</span>
                                     @else
-                                        <span class="inline-flex rounded-full bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Closed</span>
+                                        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Closed</span>
                                     @endif
                                 </div>
                             </div>
@@ -201,7 +204,7 @@
                             <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
                                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">SLA Status</p>
                                 <div class="mt-3">
-                                    <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset {{ $ticket->slaBadgeClasses() }}">
+                                    <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset {{ $ticket->slaBadgeClasses() }}">
                                         {{ $ticket->slaLabel() }}
                                     </span>
                                 </div>
@@ -210,8 +213,8 @@
                             <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
                                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">SLA Due</p>
                                 @if ($ticket->sla_due_at)
-                                    <p class="mt-3 text-sm font-medium text-slate-700">{{ $ticket->sla_due_at->format('d M Y, H:i') }}</p>
-                                    <p class="mt-1 text-xs text-slate-500">{{ $ticket->sla_due_at->diffForHumans() }}</p>
+                                    <p class="mt-3 whitespace-nowrap text-sm font-medium text-slate-700">{{ $ticket->sla_due_at->format('d M Y, H:i') }}</p>
+                                    <p class="mt-1 whitespace-nowrap text-xs text-slate-500">{{ $ticket->sla_due_at->diffForHumans() }}</p>
                                 @else
                                     <p class="mt-3 text-sm font-medium text-slate-500">Not set</p>
                                 @endif
@@ -220,8 +223,8 @@
                             <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
                                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">SLA Resolved</p>
                                 @if ($ticket->sla_resolved_at)
-                                    <p class="mt-3 text-sm font-medium text-slate-700">{{ $ticket->sla_resolved_at->format('d M Y, H:i') }}</p>
-                                    <p class="mt-1 text-xs text-slate-500">{{ $ticket->sla_resolved_at->diffForHumans() }}</p>
+                                    <p class="mt-3 whitespace-nowrap text-sm font-medium text-slate-700">{{ $ticket->sla_resolved_at->format('d M Y, H:i') }}</p>
+                                    <p class="mt-1 whitespace-nowrap text-xs text-slate-500">{{ $ticket->sla_resolved_at->diffForHumans() }}</p>
                                 @else
                                     <p class="mt-3 text-sm font-medium text-slate-500">Open timer</p>
                                 @endif
@@ -230,8 +233,8 @@
                             <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
                                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">SLA Breach</p>
                                 @if ($ticket->sla_breached_at)
-                                    <p class="mt-3 text-sm font-medium text-red-700">{{ $ticket->sla_breached_at->format('d M Y, H:i') }}</p>
-                                    <p class="mt-1 text-xs text-slate-500">{{ $ticket->sla_breached_at->diffForHumans() }}</p>
+                                    <p class="mt-3 whitespace-nowrap text-sm font-medium text-red-700">{{ $ticket->sla_breached_at->format('d M Y, H:i') }}</p>
+                                    <p class="mt-1 whitespace-nowrap text-xs text-slate-500">{{ $ticket->sla_breached_at->diffForHumans() }}</p>
                                 @elseif ($ticket->isSlaOverdue())
                                     <p class="mt-3 text-sm font-medium text-red-700">Overdue now</p>
                                     <p class="mt-1 text-xs text-slate-500">Breach will be stored on next status update.</p>
@@ -242,13 +245,13 @@
 
                             <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
                                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Reporter</p>
-                                <div class="mt-3 flex items-center gap-3">
-                                    <div class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">
+                                <div class="mt-3 flex min-w-0 items-center gap-3">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">
                                         {{ strtoupper(substr($ticket->user->name ?? 'U', 0, 1)) }}
                                     </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-slate-700">{{ $ticket->user->name ?? 'Unknown User' }}</p>
-                                        <p class="text-xs text-slate-500">{{ $ticket->user->email ?? '-' }}</p>
+                                    <div class="min-w-0">
+                                        <p class="truncate text-sm font-medium text-slate-700">{{ $ticket->user->name ?? 'Unknown User' }}</p>
+                                        <p class="truncate text-xs text-slate-500">{{ $ticket->user->email ?? '-' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -257,31 +260,31 @@
                                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Assigned Technician</p>
                                 <div class="mt-3">
                                     @if ($ticket->assignedTechnician)
-                                        <div class="flex items-center gap-3">
-                                            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-50 text-xs font-semibold text-indigo-700">
+                                        <div class="flex min-w-0 items-center gap-3">
+                                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-xs font-semibold text-indigo-700">
                                                 {{ strtoupper(substr($ticket->assignedTechnician->name, 0, 1)) }}
                                             </div>
-                                            <div>
-                                                <p class="text-sm font-medium text-slate-700">{{ $ticket->assignedTechnician->name }}</p>
+                                            <div class="min-w-0">
+                                                <p class="truncate text-sm font-medium text-slate-700">{{ $ticket->assignedTechnician->name }}</p>
                                                 <p class="text-xs text-slate-500">{{ ucfirst($ticket->assignedTechnician->role) }}</p>
                                             </div>
                                         </div>
                                     @else
-                                        <span class="inline-flex rounded-full bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-500 ring-1 ring-inset ring-slate-200">Unassigned</span>
+                                        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-inset ring-slate-200">Unassigned</span>
                                     @endif
                                 </div>
                             </div>
 
                             <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
                                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Created</p>
-                                <p class="mt-3 text-sm font-medium text-slate-700">{{ $ticket->created_at->format('d M Y, H:i') }}</p>
-                                <p class="mt-1 text-xs text-slate-500">{{ $ticket->created_at->diffForHumans() }}</p>
+                                <p class="mt-3 whitespace-nowrap text-sm font-medium text-slate-700">{{ $ticket->created_at->format('d M Y, H:i') }}</p>
+                                <p class="mt-1 whitespace-nowrap text-xs text-slate-500">{{ $ticket->created_at->diffForHumans() }}</p>
                             </div>
 
                             <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
                                 <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Last Updated</p>
-                                <p class="mt-3 text-sm font-medium text-slate-700">{{ $ticket->updated_at->format('d M Y, H:i') }}</p>
-                                <p class="mt-1 text-xs text-slate-500">{{ $ticket->updated_at->diffForHumans() }}</p>
+                                <p class="mt-3 whitespace-nowrap text-sm font-medium text-slate-700">{{ $ticket->updated_at->format('d M Y, H:i') }}</p>
+                                <p class="mt-1 whitespace-nowrap text-xs text-slate-500">{{ $ticket->updated_at->diffForHumans() }}</p>
                             </div>
                         </div>
                     </div>

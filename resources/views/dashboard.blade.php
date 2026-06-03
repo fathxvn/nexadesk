@@ -279,44 +279,44 @@
                                     </td>
 
                                     <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
+                                        <div class="flex min-w-0 items-center gap-3">
                                             <div class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">
                                                 {{ strtoupper(substr($ticket->user->name ?? 'U', 0, 1)) }}
                                             </div>
 
-                                            <span class="text-slate-600">{{ $ticket->user->name ?? 'Unknown' }}</span>
+                                            <span class="truncate text-slate-600">{{ $ticket->user->name ?? 'Unknown' }}</span>
                                         </div>
                                     </td>
 
                                     <td class="px-6 py-4">
                                         @if ($ticket->priority === 'high')
-                                            <span class="inline-flex rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-100">High</span>
+                                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-100">High</span>
                                         @elseif ($ticket->priority === 'medium')
-                                            <span class="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-100">Medium</span>
+                                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-100">Medium</span>
                                         @else
-                                            <span class="inline-flex rounded-full bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Low</span>
+                                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Low</span>
                                         @endif
                                     </td>
 
                                     <td class="px-6 py-4">
                                         @if ($ticket->status === 'open')
-                                            <span class="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-100">Open</span>
+                                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-100">Open</span>
                                         @elseif ($ticket->status === 'in_progress')
-                                            <span class="inline-flex rounded-full bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">In Progress</span>
+                                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">In Progress</span>
                                         @elseif ($ticket->status === 'resolved')
-                                            <span class="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">Resolved</span>
+                                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">Resolved</span>
                                         @else
-                                            <span class="inline-flex rounded-full bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Closed</span>
+                                            <span class="inline-flex items-center whitespace-nowrap rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">Closed</span>
                                         @endif
                                     </td>
 
                                     <td class="px-6 py-4">
-                                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset {{ $ticket->slaBadgeClasses() }}">
+                                        <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset {{ $ticket->slaBadgeClasses() }}">
                                             {{ $ticket->slaLabel() }}
                                         </span>
                                     </td>
 
-                                    <td class="px-6 py-4 text-slate-500">
+                                    <td class="whitespace-nowrap px-6 py-4 text-slate-500">
                                         {{ $ticket->created_at->diffForHumans() }}
                                     </td>
 
