@@ -1,5 +1,7 @@
 # NexaDesk
 
+![NexaDesk Dashboard Preview](docs/dashboard.png)
+
 NexaDesk is a Helpdesk IT Ticketing System built with Laravel for a university final project / UAS. It provides a simple support workflow where users can submit IT issues, staff can manage incoming tickets, technicians can be assigned, and ticket progress can be tracked through statuses, comments, internal notes, and SLA indicators.
 
 ## Overview
@@ -10,21 +12,27 @@ The project is implemented as a Blade-based Laravel application with Tailwind CS
 
 ## Key Features
 
-- Authentication using Laravel Breeze, including registration, login, logout, password reset, email verification routes, and profile management.
+| Feature | Description |
+| --- | --- |
+| Authentication | User login, registration, email verification, and profile management |
+| Ticket Management | Create, update, track, and manage support tickets |
+| SLA Tracking | Automatic SLA deadline calculation based on ticket priority |
+| Technician Assignment | Assign tickets to technicians for handling |
+| Activity Timeline | Track ticket history and status changes |
+| Internal Notes | Staff-only notes for troubleshooting and coordination |
+| Dashboard Analytics | Ticket statistics and operational overview |
+
+Additional implemented features include:
+
 - Role-based access control using a custom `RoleMiddleware`.
-- User ticket creation with title, description, category, priority, and optional attachment.
-- Supported ticket categories: Network, Hardware, Software, Email, Account Access, Printer, and Other.
-- Supported ticket priorities: Low, Medium, and High.
-- Supported ticket statuses: Open, In Progress, Resolved, and Closed.
+- Ticket categories: Network, Hardware, Software, Email, Account Access, Printer, and Other.
+- Ticket priorities: Low, Medium, and High.
+- Ticket statuses: Open, In Progress, Resolved, and Closed.
 - User ticket list with status filtering.
 - Staff ticket list with search, status filtering, and priority filtering.
 - Assigned ticket queue for staff users.
 - Ticket detail page with metadata, attachment preview/download, SLA status, activity timeline, comments, and staff actions.
-- Ticket comments for communication between the requester and staff.
-- Staff-only internal notes for private troubleshooting context.
-- Technician assignment for tickets.
-- SLA due-date calculation based on ticket priority.
-- Dashboard metrics for ticket totals, ticket statuses, SLA status, and recent tickets.
+- Public ticket comments for communication between requesters and staff.
 - Demo data seeding for admins, technicians, users, tickets, comments, internal notes, and ticket activities.
 
 ## Tech Stack
@@ -63,7 +71,7 @@ Technicians are staff users. They can:
 - Access the staff ticket workspace.
 - View all tickets from the staff ticket list.
 - View assigned tickets.
-- If using the assigned ticket page, see only tickets assigned to themselves.
+- On the assigned ticket page, see tickets assigned to themselves.
 - View ticket details.
 - Add comments.
 - Add staff-only internal notes.
@@ -75,11 +83,9 @@ Technicians are staff users. They can:
 Admins are staff users. They can:
 
 - Access the same staff ticket management features as technicians.
-- View all assigned tickets, not only tickets assigned to themselves.
+- View all assigned tickets.
 - Assign tickets to admins or technicians.
 - Add internal notes and update ticket statuses.
-
-Needs confirmation: the code currently gives both admins and technicians access to technician assignment and status updates. There is no separate admin-only management page found in the inspected routes or views.
 
 ## Ticket Workflow
 
@@ -250,43 +256,37 @@ Open phpMyAdmin:
 http://localhost:8081
 ```
 
-### Demo Accounts
+## Demo Accounts
 
-The inspected `DatabaseSeeder` creates demo accounts with the password:
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | [admin@nexadesk.test](mailto:admin@nexadesk.test) | password |
+| Technician | [technician1@nexadesk.test](mailto:technician1@nexadesk.test) | password |
+| User | [user1@nexadesk.test](mailto:user1@nexadesk.test) | password |
 
-```text
-password
-```
+Additional demo technician accounts are available from [technician1@nexadesk.test](mailto:technician1@nexadesk.test) to [technician10@nexadesk.test](mailto:technician10@nexadesk.test).
 
-Known seeded accounts include:
+Additional demo user accounts are available from [user1@nexadesk.test](mailto:user1@nexadesk.test) to [user100@nexadesk.test](mailto:user100@nexadesk.test).
 
-- Admin: `admin@nexadesk.test`
-- Technicians: `technician1@nexadesk.test` through `technician10@nexadesk.test`
-- Users: `user1@nexadesk.test` through `user100@nexadesk.test`
+All demo accounts use the password: `password`.
 
-Needs confirmation: the exact seed data may change because `database/seeders/DatabaseSeeder.php` currently has uncommitted local changes.
+## Screenshots
 
-## Screenshots Placeholder
+| Dashboard | My Tickets |
+| --- | --- |
+| ![Dashboard](docs/dashboard.png) | ![My Tickets](docs/my-ticket.png) |
 
-Screenshots are not included in the current repository files. Suggested screenshots to add later:
+| Create Ticket | Staff Tickets |
+| --- | --- |
+| ![Create Ticket](docs/create-ticket.png) | ![Staff Tickets](docs/staff-ticket.png) |
 
-- Login page
-- Dashboard
-- My Tickets page
-- Create Ticket page
-- Ticket Detail page
-- Staff Tickets page
-- Assigned Tickets page
-
-Example format:
-
-```markdown
-![Dashboard](docs/screenshots/dashboard.png)
-```
+| Assigned Tickets |
+| --- |
+| ![Assigned Tickets](docs/assigned-ticket.png) |
 
 ## Future Improvements
 
-These items are not confirmed as fully implemented in the inspected codebase and can be considered future development ideas:
+Potential improvements for future development:
 
 - Admin-only user management page.
 - Ticket category management from the UI.
@@ -295,19 +295,11 @@ These items are not confirmed as fully implemented in the inspected codebase and
 - Pagination for large ticket lists.
 - More advanced reporting and analytics.
 - Export tickets to CSV or PDF.
-- Screenshot documentation in the repository.
 - Automated feature tests for ticket workflows and role access.
 
 ## Author
 
-Needs confirmation: add the author's full name, student ID, class, university, and GitHub profile.
-
-Example:
-
-```text
-Name: Needs confirmation
-Student ID: Needs confirmation
-Class: Needs confirmation
-University: Needs confirmation
-GitHub: Needs confirmation
-```
+| Field | Information |
+| --- | --- |
+| Name | Muhammad Fathan |
+| GitHub | [github.com/fathxvn](https://github.com/fathxvn) |
