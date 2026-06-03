@@ -112,67 +112,67 @@ Admins are staff users. They can:
 
 The application uses the default Laravel authentication tables plus custom ticketing tables.
 
-### `users`
+### users
 
-Main fields used by this project:
+| Column | Description |
+| --- | --- |
+| id | Primary key |
+| name | User full name |
+| email | User login email |
+| password | Hashed user password |
+| role | User access role: `user`, `technician`, or `admin` |
+| email_verified_at | Email verification timestamp |
+| timestamps | Laravel `created_at` and `updated_at` fields |
 
-- `id`
-- `name`
-- `email`
-- `password`
-- `role`: `user`, `technician`, or `admin`
-- `email_verified_at`
-- timestamps
+### tickets
 
-### `tickets`
+| Column | Description |
+| --- | --- |
+| id | Primary key |
+| user_id | Requester user ID linked to the user who created the ticket |
+| assigned_to_user_id | Assigned staff user ID; nullable when no technician or admin is assigned |
+| title | Short ticket title or issue summary |
+| description | Detailed explanation of the reported issue |
+| category | Ticket category: `network`, `hardware`, `software`, `email`, `account_access`, `printer`, or `other` |
+| attachment_path | Optional uploaded attachment path for JPG, PNG, or PDF files |
+| priority | Ticket priority: `low`, `medium`, or `high` |
+| status | Ticket workflow status: `open`, `in_progress`, `resolved`, or `closed` |
+| sla_started_at | Timestamp when SLA tracking starts |
+| sla_due_at | Calculated SLA deadline based on ticket priority |
+| sla_resolved_at | Timestamp when the ticket is marked resolved or closed |
+| sla_breached_at | Timestamp recorded when the ticket passes its SLA deadline |
+| timestamps | Laravel `created_at` and `updated_at` fields |
 
-Main fields:
+### ticket_comments
 
-- `id`
-- `user_id`: requester
-- `assigned_to_user_id`: assigned staff member, nullable
-- `title`
-- `description`
-- `category`: `network`, `hardware`, `software`, `email`, `account_access`, `printer`, or `other`
-- `attachment_path`, nullable
-- `priority`: `low`, `medium`, or `high`
-- `status`: `open`, `in_progress`, `resolved`, or `closed`
-- `sla_started_at`
-- `sla_due_at`
-- `sla_resolved_at`
-- `sla_breached_at`
-- timestamps
+| Column | Description |
+| --- | --- |
+| id | Primary key |
+| ticket_id | Related ticket ID |
+| user_id | User ID of the comment author |
+| message | Public comment message shown in the ticket conversation |
+| timestamps | Laravel `created_at` and `updated_at` fields |
 
-### `ticket_comments`
+### ticket_activities
 
-Stores public conversation messages for a ticket.
+| Column | Description |
+| --- | --- |
+| id | Primary key |
+| ticket_id | Related ticket ID |
+| user_id | User ID linked to the activity; nullable for system-level activity |
+| type | Activity type, such as ticket creation, comment, assignment, or status change |
+| description | Human-readable activity description shown in the activity timeline |
+| timestamps | Laravel `created_at` and `updated_at` fields |
 
-- `id`
-- `ticket_id`
-- `user_id`
-- `message`
-- timestamps
+### ticket_internal_notes
 
-### `ticket_activities`
-
-Stores ticket history entries such as creation, assignment, comments, and status changes.
-
-- `id`
-- `ticket_id`
-- `user_id`, nullable
-- `type`
-- `description`
-- timestamps
-
-### `ticket_internal_notes`
-
-Stores private staff-only notes.
-
-- `id`
-- `ticket_id`
-- `user_id`
-- `body`
-- timestamps
+| Column | Description |
+| --- | --- |
+| id | Primary key |
+| ticket_id | Related ticket ID |
+| user_id | Staff user ID of the internal note author |
+| body | Private staff-only note content for troubleshooting or coordination |
+| timestamps | Laravel `created_at` and `updated_at` fields |
 
 ## Installation Guide Using Laravel Sail
 
@@ -283,6 +283,12 @@ All demo accounts use the password: `password`.
 | Assigned Tickets |
 | --- |
 | ![Assigned Tickets](docs/assigned-ticket.png) |
+
+### Ticket Detail
+
+The ticket detail page shows ticket metadata, SLA status, staff actions, internal notes, comments, and the activity timeline.
+
+![Ticket Detail](docs/detail-ticket.png)
 
 ## Future Improvements
 
