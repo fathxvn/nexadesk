@@ -157,6 +157,65 @@
                         </div>
                     @endif
 
+                    @if (auth()->user()->isStaff() && $ticket->source === 'email')
+                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <div class="mb-5 flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                                <x-heroicon-o-paper-airplane class="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h2 class="text-base font-semibold text-slate-800">Compose Email Reply</h2>
+                                <p class="text-sm text-slate-500">Send a real email reply to the original sender.</p>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{{ route('staff.tickets.emailReply', $ticket) }}" class="space-y-4">
+                            @csrf
+
+                            <div>
+                                <label class="text-sm font-medium text-slate-700">To</label>
+                                <input
+                                    type="text"
+                                    value="{{ $ticket->email_from }}"
+                                    disabled
+                                    class="mt-2 w-full rounded-xl border-slate-200 bg-slate-50 text-sm text-slate-500"
+                                >
+                            </div>
+
+                            <div>
+                                <label class="text-sm font-medium text-slate-700">Subject</label>
+                                <input
+                                    type="text"
+                                    value="Re: [NexaDesk #{{ $ticket->id }}] {{ $ticket->email_subject ?? $ticket->title }}"
+                                    disabled
+                                    class="mt-2 w-full rounded-xl border-slate-200 bg-slate-50 text-sm text-slate-500"
+                                >
+                            </div>
+
+                            <div>
+                                <label for="message" class="text-sm font-medium text-slate-700">Reply Message</label>
+                                <textarea
+                                    id="message"
+                                    name="message"
+                                    rows="6"
+                                    required
+                                    class="mt-2 w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    placeholder="Tulis balasan email ke user..."
+                                >{{ old('message') }}</textarea>
+
+                                @error('message')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700">
+                                <x-heroicon-o-paper-airplane class="h-4 w-4" />
+                                Send Email Reply
+                            </button>
+                        </form>
+                    </div>
+                @endif
+
                     {{-- ========================================= --}}
                     {{-- SECTION: ATTACHMENT --}}
                     {{-- ========================================= --}}

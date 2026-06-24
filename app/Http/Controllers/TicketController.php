@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Mail\TicketEmailReply;
+use Illuminate\Support\Facades\Mail;
 
 class TicketController extends Controller
 {
@@ -346,4 +348,40 @@ class TicketController extends Controller
                 'message' => 'The ticket has been assigned successfully.',
             ]);
         }
+
+        public function sendEmailReply(Request $request, Ticket $ticket)
+            {
+                abort_unless(auth()->user()->isStaff(), 403);
+
+                $validated = $request->validate([
+                    'message' => ['required', 'string', 'min:5'],
+                ]);
+
+                if (! $ticket->email_from) {
+                    return back()->with('notification', [
+                        'type' => 'danger',
+                        'message' => 'Ticket ini tidak memiliki alamat email tujuan.',
+                    ]);
+                }
+
+                Mail::to($ticket->email_from)->send(
+                    new TicketEmailReply($ticket, $validated['message'])
+                );
+
+                $ticket->comments()->create([
+                    'user_id' => auth()->id(),
+                    'body' => $validated['message'],
+                ]);
+
+                $ticket->activities()->create([
+                    'user_id' => auth()->id(),
+                    'type' => 'email_reply',
+                    'description' => 'Email reply sent to ' . $ticket->email_from,
+                ]);
+
+                return back()->with('notification', [
+                    'type' => 'success',
+                    'message' => 'Email reply berhasil dikirim.',
+                ]);
+            }
 }
