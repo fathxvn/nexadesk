@@ -61,6 +61,9 @@ Route::middleware(['auth', 'role:admin,technician'])->group(function () {
     Route::get('/assigned-tickets', [TicketController::class, 'assignedTickets'])
         ->name('assigned.tickets');
 
+    Route::get('/staff/email-tickets', [TicketController::class, 'emailTickets'])
+        ->name('staff.email-tickets.index');
+
     Route::patch('/staff/tickets/{ticket}/status', [TicketController::class, 'updateStatus'])
         ->name('staff.tickets.updateStatus');
 

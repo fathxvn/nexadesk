@@ -1,7 +1,10 @@
 <nav>
     @php
         $user = auth()->user();
-        $isStaff = $user && in_array($user->role, ['admin', 'technician']);
+        $isStaff = $user?->isStaff() ?? false;
+        $emailTicketCount = $isStaff
+            ? \App\Models\Ticket::whereRaw('LOWER(TRIM(source)) = ?', ['email'])->count()
+            : 0;
     @endphp
 
     <!-- Desktop Sidebar -->
@@ -64,6 +67,15 @@
 
                             <x-nav-link icon="heroicon-o-ticket" :href="route('assigned.tickets')" :active="request()->routeIs('assigned.tickets')" title="Assigned Tickets">
                                 {{ __('Assigned Tickets') }}
+                            </x-nav-link>
+
+                            <x-nav-link icon="heroicon-o-envelope" :href="route('staff.email-tickets.index')" :active="request()->routeIs('staff.email-tickets.*')" title="Email Tickets">
+                                <span class="flex min-w-0 flex-1 items-center justify-between gap-2">
+                                    <span class="truncate">{{ __('Email Tickets') }}</span>
+                                    <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+                                        {{ $emailTicketCount }}
+                                    </span>
+                                </span>
                             </x-nav-link>
                         @endif
                     </div>
@@ -200,6 +212,15 @@
 
                                 <x-responsive-nav-link icon="heroicon-o-ticket" :href="route('assigned.tickets')" :active="request()->routeIs('assigned.tickets')">
                                     {{ __('Assigned Tickets') }}
+                                </x-responsive-nav-link>
+
+                                <x-responsive-nav-link icon="heroicon-o-envelope" :href="route('staff.email-tickets.index')" :active="request()->routeIs('staff.email-tickets.*')">
+                                    <span class="flex min-w-0 flex-1 items-center justify-between gap-2">
+                                        <span>{{ __('Email Tickets') }}</span>
+                                        <span class="inline-flex min-w-6 items-center justify-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+                                            {{ $emailTicketCount }}
+                                        </span>
+                                    </span>
                                 </x-responsive-nav-link>
                             @endif
                         </div>

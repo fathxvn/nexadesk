@@ -137,4 +137,9 @@ class Ticket extends Model
     {
         return in_array($this->status, ['resolved', 'closed'], true);
     }
+
+    public function isEmailSource(): bool
+    {
+        return strtolower(trim((string) $this->source)) === 'email';
+    }
 }

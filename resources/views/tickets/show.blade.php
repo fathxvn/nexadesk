@@ -109,7 +109,7 @@
                     {{-- ========================================= --}}
                     {{-- SECTION: EMAIL SOURCE --}}
                     {{-- ========================================= --}}
-                    @if ($ticket->source === 'email')
+                    @if ($ticket->isEmailSource())
                         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                             <div class="mb-5 flex items-center gap-3">
                                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
@@ -160,7 +160,7 @@
                     {{-- ========================================= --}}
                     {{-- SECTION: COMPOSE EMAIL REPLY --}}
                     {{-- ========================================= --}}
-                    @if (auth()->user()->isStaff() && $ticket->source === 'email')
+                    @if (auth()->user()->isStaff() && $ticket->isEmailSource())
                         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                             <div class="mb-5 flex items-center gap-3">
                                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
@@ -228,6 +228,17 @@
                                     Send Email Reply
                                 </button>
                             </form>
+                        </div>
+                    @endif
+
+                    @if (auth()->user()->isStaff() && ! $ticket->isEmailSource())
+                        <div class="rounded-2xl border border-blue-100 bg-blue-50/70 px-5 py-4">
+                            <div class="flex items-start gap-3">
+                                <x-heroicon-o-information-circle class="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+                                <p class="text-sm text-blue-700">
+                                    This ticket was created from web form, email reply is not available.
+                                </p>
+                            </div>
                         </div>
                     @endif
 

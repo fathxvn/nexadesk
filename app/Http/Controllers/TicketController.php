@@ -235,6 +235,18 @@ class TicketController extends Controller
         return view('staff.tickets.assigned', compact('tickets'));
     }
 
+    public function emailTickets()
+    {
+        $tickets = Ticket::query()
+            ->whereRaw('LOWER(TRIM(source)) = ?', ['email'])
+            ->with(['department', 'assignedTechnician'])
+            ->orderByDesc('email_received_at')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('staff.tickets.email-index', compact('tickets'));
+    }
+
     public function updateStatus(Request $request, Ticket $ticket)
     {
         $validated = $request->validate([
@@ -355,7 +367,7 @@ class TicketController extends Controller
             'message' => ['required', 'string', 'max:10000'],
         ]);
 
-        if ($ticket->source !== 'email') {
+        if (! $ticket->isEmailSource()) {
             return back()
                 ->withInput()
                 ->with('notification', [
