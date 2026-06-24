@@ -29,6 +29,9 @@
         @endphp
 
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+            {{-- ========================================= --}}
+            {{-- SECTION: HEADER --}}
+            {{-- ========================================= --}}
             <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                     <div class="flex flex-wrap items-center gap-2">
@@ -84,6 +87,9 @@
 
             <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
                 <div class="space-y-6 xl:col-span-2">
+                    {{-- ========================================= --}}
+                    {{-- SECTION: TICKET DESCRIPTION --}}
+                    {{-- ========================================= --}}
                     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                         <div class="mb-4 flex items-center gap-3">
                             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
@@ -100,6 +106,60 @@
                         </div>
                     </div>
 
+                    {{-- ========================================= --}}
+                    {{-- SECTION: EMAIL SOURCE --}}
+                    {{-- ========================================= --}}
+                    @if ($ticket->source === 'email')
+                        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                            <div class="mb-5 flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                                    <x-heroicon-o-envelope class="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h2 class="text-base font-semibold text-slate-800">Email Source</h2>
+                                    <p class="text-sm text-slate-500">Original email message submitted by the sender.</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+                                    <p class="text-xs font-medium uppercase tracking-wide text-slate-500">From</p>
+                                    <p class="mt-3 break-words text-sm font-medium text-slate-700">
+                                        {{ $ticket->email_from_name ?: 'Unknown Sender' }}
+                                    </p>
+                                    @if ($ticket->email_from)
+                                        <p class="mt-1 break-all text-xs text-slate-500">{{ $ticket->email_from }}</p>
+                                    @endif
+                                </div>
+
+                                <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+                                    <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Received At</p>
+                                    <p class="mt-3 text-sm font-medium text-slate-700">
+                                        {{ $ticket->email_received_at?->format('d M Y, H:i') ?? '-' }}
+                                    </p>
+                                    @if ($ticket->email_received_at)
+                                        <p class="mt-1 text-xs text-slate-500">{{ $ticket->email_received_at->diffForHumans() }}</p>
+                                    @endif
+                                </div>
+
+                                <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 md:col-span-2">
+                                    <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Subject</p>
+                                    <p class="mt-3 break-words text-sm font-medium text-slate-700">
+                                        {{ $ticket->email_subject ?? $ticket->title }}
+                                    </p>
+                                </div>
+
+                                <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 md:col-span-2">
+                                    <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Message Body</p>
+                                    <div class="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700">{{ $ticket->email_body ?? $ticket->description }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- ========================================= --}}
+                    {{-- SECTION: ATTACHMENT --}}
+                    {{-- ========================================= --}}
                     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                         <div class="mb-4 flex items-center gap-3">
                             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
@@ -152,6 +212,9 @@
                         @endif
                     </div>
 
+                    {{-- ========================================= --}}
+                    {{-- SECTION: TICKET METADATA --}}
+                    {{-- ========================================= --}}
                     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                         <div class="mb-5 flex items-center gap-3">
                             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
@@ -295,6 +358,9 @@
                         </div>
                     </div>
 
+                    {{-- ========================================= --}}
+                    {{-- SECTION: ASSIGNED TECHNICIAN --}}
+                    {{-- ========================================= --}}
                     @if (auth()->user()->isStaff())
                         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                             <div class="mb-4 flex items-center gap-3">
@@ -329,6 +395,9 @@
                         </div>
                     @endif
 
+                    {{-- ========================================= --}}
+                    {{-- SECTION: INTERNAL NOTES --}}
+                    {{-- ========================================= --}}
                     @if (auth()->user()->isStaff())
                         <div class="overflow-hidden rounded-2xl border border-amber-200 bg-white shadow-sm">
                             <div class="border-b border-amber-100 bg-amber-50/60 px-6 py-5">
@@ -413,6 +482,9 @@
                         </div>
                     @endif
 
+                    {{-- ========================================= --}}
+                    {{-- SECTION: ACTIVITY TIMELINE --}}
+                    {{-- ========================================= --}}
                     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                         <div class="mb-5">
                             <h3 class="text-base font-semibold text-slate-800">Activity Timeline</h3>
@@ -446,6 +518,9 @@
                         </div>
                     </div>
 
+                    {{-- ========================================= --}}
+                    {{-- SECTION: STAFF ACTIONS --}}
+                    {{-- ========================================= --}}
                     @if (auth()->user()->isStaff())
                         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                             <div class="mb-4 flex items-center gap-3">
@@ -567,6 +642,9 @@
                 </div>
 
                 <div class="xl:col-span-1">
+                    {{-- ========================================= --}}
+                    {{-- SECTION: CONVERSATION / COMMENTS --}}
+                    {{-- ========================================= --}}
                     <div class="sticky top-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                         <div class="border-b border-slate-200 px-5 py-4">
                             <div class="flex items-center justify-between gap-4">

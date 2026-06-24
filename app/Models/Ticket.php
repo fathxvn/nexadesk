@@ -20,6 +20,13 @@ class Ticket extends Model
         'sla_resolved_at',
         'sla_breached_at',
         'department_id',
+        'source',
+        'email_from',
+        'email_from_name',
+        'email_subject',
+        'email_body',
+        'email_message_id',
+        'email_received_at',
     ];
 
     protected $casts = [
@@ -27,6 +34,7 @@ class Ticket extends Model
         'sla_due_at' => 'datetime',
         'sla_resolved_at' => 'datetime',
         'sla_breached_at' => 'datetime',
+        'email_received_at' => 'datetime',
     ];
 
     public function user()
