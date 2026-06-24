@@ -5,6 +5,8 @@ namespace App\Mail;
 use App\Models\Ticket;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class TicketEmailReply extends Mailable
@@ -13,13 +15,32 @@ class TicketEmailReply extends Mailable
 
     public function __construct(
         public Ticket $ticket,
-        public string $replyMessage
+        public string $replyMessage,
     ) {}
 
-    public function build()
+    public function envelope(): Envelope
     {
-        return $this
-            ->subject('Re: [NexaDesk #' . $this->ticket->id . '] ' . ($this->ticket->email_subject ?? $this->ticket->title))
-            ->view('emails.ticket-reply');
+        return new Envelope(
+            subject: $this->replySubject(),
+        );
+    }
+
+    public function content(): Content
+    {
+        return new Content(
+            view: 'emails.ticket-email-reply',
+        );
+    }
+
+    public function attachments(): array
+    {
+        return [];
+    }
+
+    public function replySubject(): string
+    {
+        $originalSubject = $this->ticket->email_subject ?: $this->ticket->title;
+
+        return "Re: [NexaDesk #{$this->ticket->id}] {$originalSubject}";
     }
 }

@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\TicketEmailReply;
+use App\Models\Department;
 use App\Models\Ticket;
-use App\Models\TicketActivity;
 use App\Models\TicketInternalNote;
 use App\Models\User;
-use App\Models\Department;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use App\Mail\TicketEmailReply;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class TicketController extends Controller
 {
@@ -71,7 +72,7 @@ class TicketController extends Controller
             'sla_started_at' => now(),
         ];
 
-        $ticketData['sla_due_at'] = (new Ticket())->slaDueAtForPriority(
+        $ticketData['sla_due_at'] = (new Ticket)->slaDueAtForPriority(
             $validated['priority'],
             $ticketData['sla_started_at']
         );
@@ -103,12 +104,12 @@ class TicketController extends Controller
         }
 
         $ticket->load([
-            'user', 
-            'comments.user', 
+            'user',
+            'comments.user',
             'assignedTechnician',
             'department',
             'activities.user',
-            ]);
+        ]);
 
         if (auth()->user()->isStaff()) {
             $ticket->load('internalNotes.user');
@@ -206,7 +207,7 @@ class TicketController extends Controller
         }
 
         if (request('search')) {
-            $query->where('title', 'like', '%' . request('search') . '%');
+            $query->where('title', 'like', '%'.request('search').'%');
         }
 
         $tickets = $query
@@ -257,11 +258,10 @@ class TicketController extends Controller
 
         $ticket->update($statusData);
 
-
         $ticket->activities()->create([
             'user_id' => auth()->id(),
             'type' => 'status_changed',
-            'description' => 'Status changed from ' . ucfirst(str_replace('_', ' ', $oldStatus)) . ' to ' . ucfirst(str_replace('_', ' ', $validated['status'])),
+            'description' => 'Status changed from '.ucfirst(str_replace('_', ' ', $oldStatus)).' to '.ucfirst(str_replace('_', ' ', $validated['status'])),
         ]);
 
         return back()->with('notification', [
@@ -323,65 +323,94 @@ class TicketController extends Controller
     }
 
     public function assignTechnician(Request $request, Ticket $ticket)
-        {
-            $validated = $request->validate([
-                'assigned_to_user_id' => 'nullable|exists:users,id',
-            ]);
+    {
+        $validated = $request->validate([
+            'assigned_to_user_id' => 'nullable|exists:users,id',
+        ]);
 
-            $technician = User::find($validated['assigned_to_user_id']);
+        $technician = User::find($validated['assigned_to_user_id']);
 
-            $ticket->update([
-                'assigned_to_user_id' => $validated['assigned_to_user_id'],
-            ]);
+        $ticket->update([
+            'assigned_to_user_id' => $validated['assigned_to_user_id'],
+        ]);
 
-            $ticket->activities()->create([
-                'user_id' => auth()->id(),
-                'type' => 'assigned',
-                'description' => $technician
-                    ? 'Assigned to ' . $technician->name
-                    : 'Technician unassigned',
-            ]);
+        $ticket->activities()->create([
+            'user_id' => auth()->id(),
+            'type' => 'assigned',
+            'description' => $technician
+                ? 'Assigned to '.$technician->name
+                : 'Technician unassigned',
+        ]);
 
-            return back()->with('notification', [
-                'type' => 'info',
-                'title' => 'Technician assigned',
-                'message' => 'The ticket has been assigned successfully.',
-            ]);
+        return back()->with('notification', [
+            'type' => 'info',
+            'title' => 'Technician assigned',
+            'message' => 'The ticket has been assigned successfully.',
+        ]);
+    }
+
+    public function sendEmailReply(Request $request, Ticket $ticket)
+    {
+        $validated = $request->validateWithBag('emailReply', [
+            'message' => ['required', 'string', 'max:10000'],
+        ]);
+
+        if ($ticket->source !== 'email') {
+            return back()
+                ->withInput()
+                ->with('notification', [
+                    'type' => 'danger',
+                    'title' => 'Email reply unavailable',
+                    'message' => 'This ticket was not created from an email.',
+                ]);
         }
 
-        public function sendEmailReply(Request $request, Ticket $ticket)
-            {
-                abort_unless(auth()->user()->isStaff(), 403);
-
-                $validated = $request->validate([
-                    'message' => ['required', 'string', 'min:5'],
+        if (
+            blank($ticket->email_from)
+            || filter_var($ticket->email_from, FILTER_VALIDATE_EMAIL) === false
+        ) {
+            return back()
+                ->withInput()
+                ->with('notification', [
+                    'type' => 'danger',
+                    'title' => 'Invalid recipient',
+                    'message' => 'This ticket does not have a valid destination email address.',
                 ]);
+        }
 
-                if (! $ticket->email_from) {
-                    return back()->with('notification', [
-                        'type' => 'danger',
-                        'message' => 'Ticket ini tidak memiliki alamat email tujuan.',
-                    ]);
-                }
-
+        try {
+            DB::transaction(function () use ($ticket, $validated) {
                 Mail::to($ticket->email_from)->send(
                     new TicketEmailReply($ticket, $validated['message'])
                 );
 
                 $ticket->comments()->create([
                     'user_id' => auth()->id(),
-                    'body' => $validated['message'],
+                    'message' => $validated['message'],
                 ]);
 
                 $ticket->activities()->create([
                     'user_id' => auth()->id(),
                     'type' => 'email_reply',
-                    'description' => 'Email reply sent to ' . $ticket->email_from,
+                    'description' => 'Email reply sent to '.$ticket->email_from,
                 ]);
+            });
+        } catch (Throwable $exception) {
+            report($exception);
 
-                return back()->with('notification', [
-                    'type' => 'success',
-                    'message' => 'Email reply berhasil dikirim.',
+            return back()
+                ->withInput()
+                ->with('notification', [
+                    'type' => 'danger',
+                    'title' => 'Email delivery failed',
+                    'message' => 'The reply could not be sent. Please try again.',
                 ]);
-            }
+        }
+
+        return back()->with('notification', [
+            'type' => 'success',
+            'title' => 'Email reply sent',
+            'message' => 'The reply was sent and added to the ticket conversation.',
+        ]);
+    }
 }

@@ -157,64 +157,79 @@
                         </div>
                     @endif
 
+                    {{-- ========================================= --}}
+                    {{-- SECTION: COMPOSE EMAIL REPLY --}}
+                    {{-- ========================================= --}}
                     @if (auth()->user()->isStaff() && $ticket->source === 'email')
-                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <div class="mb-5 flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-                                <x-heroicon-o-paper-airplane class="h-5 w-5" />
+                        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                            <div class="mb-5 flex items-center gap-3">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                                    <x-heroicon-o-paper-airplane class="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h2 class="text-base font-semibold text-slate-800">Compose Email Reply</h2>
+                                    <p class="text-sm text-slate-500">Send a reply to the original email sender.</p>
+                                </div>
                             </div>
-                            <div>
-                                <h2 class="text-base font-semibold text-slate-800">Compose Email Reply</h2>
-                                <p class="text-sm text-slate-500">Send a real email reply to the original sender.</p>
-                            </div>
+
+                            <form method="POST" action="{{ route('staff.tickets.email-reply.store', $ticket) }}" class="space-y-4">
+                                @csrf
+
+                                <div>
+                                    <label for="email-reply-to" class="block text-sm font-medium text-slate-700">To</label>
+                                    <input
+                                        id="email-reply-to"
+                                        type="email"
+                                        value="{{ $ticket->email_from }}"
+                                        readonly
+                                        class="mt-2 w-full rounded-xl border-slate-200 bg-slate-50 text-sm text-slate-500 shadow-sm"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label for="email-reply-subject" class="block text-sm font-medium text-slate-700">Subject</label>
+                                    <input
+                                        id="email-reply-subject"
+                                        type="text"
+                                        value="Re: [NexaDesk #{{ $ticket->id }}] {{ $ticket->email_subject ?: $ticket->title }}"
+                                        readonly
+                                        class="mt-2 w-full rounded-xl border-slate-200 bg-slate-50 text-sm text-slate-500 shadow-sm"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label for="email-reply-message" class="block text-sm font-medium text-slate-700">Message</label>
+                                    <textarea
+                                        id="email-reply-message"
+                                        name="message"
+                                        rows="6"
+                                        required
+                                        maxlength="10000"
+                                        placeholder="Write your reply to the sender..."
+                                        class="mt-2 w-full resize-y rounded-xl border-slate-300 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    >{{ old('message') }}</textarea>
+
+                                    @error('message', 'emailReply')
+                                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                @if (blank($ticket->email_from))
+                                    <div class="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                        This ticket does not have a destination email address.
+                                    </div>
+                                @endif
+
+                                <button
+                                    type="submit"
+                                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                >
+                                    <x-heroicon-o-paper-airplane class="h-4 w-4" />
+                                    Send Email Reply
+                                </button>
+                            </form>
                         </div>
-
-                        <form method="POST" action="{{ route('staff.tickets.emailReply', $ticket) }}" class="space-y-4">
-                            @csrf
-
-                            <div>
-                                <label class="text-sm font-medium text-slate-700">To</label>
-                                <input
-                                    type="text"
-                                    value="{{ $ticket->email_from }}"
-                                    disabled
-                                    class="mt-2 w-full rounded-xl border-slate-200 bg-slate-50 text-sm text-slate-500"
-                                >
-                            </div>
-
-                            <div>
-                                <label class="text-sm font-medium text-slate-700">Subject</label>
-                                <input
-                                    type="text"
-                                    value="Re: [NexaDesk #{{ $ticket->id }}] {{ $ticket->email_subject ?? $ticket->title }}"
-                                    disabled
-                                    class="mt-2 w-full rounded-xl border-slate-200 bg-slate-50 text-sm text-slate-500"
-                                >
-                            </div>
-
-                            <div>
-                                <label for="message" class="text-sm font-medium text-slate-700">Reply Message</label>
-                                <textarea
-                                    id="message"
-                                    name="message"
-                                    rows="6"
-                                    required
-                                    class="mt-2 w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                    placeholder="Tulis balasan email ke user..."
-                                >{{ old('message') }}</textarea>
-
-                                @error('message')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700">
-                                <x-heroicon-o-paper-airplane class="h-4 w-4" />
-                                Send Email Reply
-                            </button>
-                        </form>
-                    </div>
-                @endif
+                    @endif
 
                     {{-- ========================================= --}}
                     {{-- SECTION: ATTACHMENT --}}

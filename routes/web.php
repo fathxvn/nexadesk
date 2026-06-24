@@ -4,8 +4,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Mail;
-
 
 Route::get('/', function () {
     return view('welcome');
@@ -73,7 +71,7 @@ Route::middleware(['auth', 'role:admin,technician'])->group(function () {
         ->name('staff.tickets.internal-notes.store');
 
     Route::post('/staff/tickets/{ticket}/email-reply', [TicketController::class, 'sendEmailReply'])
-        ->name('staff.tickets.emailReply');
+        ->name('staff.tickets.email-reply.store');
 });
 
 require __DIR__.'/auth.php';
