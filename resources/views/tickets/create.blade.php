@@ -45,8 +45,6 @@
                     </div>
 
                     <div>
-
-                    <div>
                         <label class="block text-sm font-medium text-slate-700">Category</label>
                         <select name="category" class="mt-1 w-full rounded-xl border-slate-300 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             <option value="network" {{ old('category', 'other') === 'network' ? 'selected' : '' }}>Network</option>
@@ -70,23 +68,6 @@
                             <option value="high">High</option>
                         </select>
                         @error('priority')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700">Department</label>
-                        <select name="department_id" class="mt-1 w-full rounded-xl border-slate-300 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option value="">Select Department</option>
-
-                            @foreach ($departments as $department)
-                                <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>
-                                    {{ $department->name }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        @error('department_id')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>

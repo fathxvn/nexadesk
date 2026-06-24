@@ -76,4 +76,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(TicketInternalNote::class);
     }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 }

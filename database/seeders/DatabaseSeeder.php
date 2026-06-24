@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Department;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -17,33 +18,50 @@ class DatabaseSeeder extends Seeder
             $password = Hash::make('password');
             $now = now()->seconds(0);
 
-            $admin = User::create([
-                'name' => 'Admin Helpdesk',
-                'email' => 'admin@nexadesk.test',
-                'password' => $password,
-                'role' => 'admin',
-            ]);
+            $departments = collect([
+                ['name' => 'IT Support', 'description' => 'Menangani perangkat, printer, dan kebutuhan IT umum.'],
+                ['name' => 'Network', 'description' => 'Menangani konektivitas jaringan, WiFi, internet, dan VPN.'],
+                ['name' => 'Server', 'description' => 'Menangani server, infrastruktur, dan layanan backend.'],
+                ['name' => 'Application', 'description' => 'Menangani aplikasi, email, dan akses akun pengguna.'],
+            ])->mapWithKeys(function (array $department) {
+                $model = Department::updateOrCreate(
+                    ['name' => $department['name']],
+                    ['description' => $department['description']]
+                );
 
-            $technicianNames = [
-                'Bima Pratama',
-                'Dewi Lestari',
-                'Rizky Ramadhan',
-                'Sinta Maharani',
-                'Arif Setiawan',
-                'Maya Wulandari',
-                'Fajar Nugroho',
-                'Nabila Putri',
-                'Hendra Saputra',
-                'Intan Permata',
+                return [$department['name'] => $model];
+            });
+
+            $admin = User::updateOrCreate(
+                ['email' => 'admin@nexadesk.test'],
+                [
+                    'name' => 'Admin Helpdesk',
+                    'password' => $password,
+                    'role' => 'admin',
+                ]
+            );
+
+            $technicianData = [
+                ['name' => 'Teknisi IT', 'email' => 'tech.it@nexadesk.test', 'department' => 'IT Support'],
+                ['name' => 'Teknisi Network', 'email' => 'tech.network@nexadesk.test', 'department' => 'Network'],
+                ['name' => 'Teknisi Server', 'email' => 'tech.server@nexadesk.test', 'department' => 'Server'],
+                ['name' => 'Teknisi Application', 'email' => 'tech.application@nexadesk.test', 'department' => 'Application'],
             ];
 
-            $technicians = collect($technicianNames)->map(function (string $name, int $index) use ($password) {
-                return User::create([
-                    'name' => $name,
-                    'email' => 'technician' . ($index + 1) . '@nexadesk.test',
-                    'password' => $password,
-                    'role' => 'technician',
-                ]);
+            $technicians = collect($technicianData)->mapWithKeys(function (array $data) use ($departments, $password) {
+                $technician = User::updateOrCreate(
+                    ['email' => $data['email']],
+                    [
+                        'name' => $data['name'],
+                        'password' => $password,
+                        'role' => 'technician',
+                    ]
+                );
+
+                $technician->department_id = $departments[$data['department']]->id;
+                $technician->save();
+
+                return [$data['department'] => $technician];
             });
 
             $firstNames = [
@@ -60,12 +78,14 @@ class DatabaseSeeder extends Seeder
                 $firstName = $firstNames[($number - 1) % count($firstNames)];
                 $lastName = $lastNames[intdiv($number - 1, count($firstNames)) % count($lastNames)];
 
-                return User::create([
-                    'name' => $firstName . ' ' . $lastName,
-                    'email' => 'user' . $number . '@nexadesk.test',
-                    'password' => $password,
-                    'role' => 'user',
-                ]);
+                return User::updateOrCreate(
+                    ['email' => 'user' . $number . '@nexadesk.test'],
+                    [
+                        'name' => $firstName . ' ' . $lastName,
+                        'password' => $password,
+                        'role' => 'user',
+                    ]
+                );
             });
 
             $statuses = array_merge(
@@ -89,6 +109,16 @@ class DatabaseSeeder extends Seeder
                 'account_access',
                 'printer',
                 'other',
+            ];
+
+            $categoryDepartments = [
+                'network' => 'Network',
+                'hardware' => 'IT Support',
+                'printer' => 'IT Support',
+                'software' => 'Application',
+                'email' => 'Application',
+                'account_access' => 'Application',
+                'other' => 'IT Support',
             ];
 
             $ticketTemplates = [
@@ -157,14 +187,21 @@ class DatabaseSeeder extends Seeder
                 $status = $statuses[$number - 1];
                 $priority = $priorities[($number - 1) % count($priorities)];
                 $category = $categories[($number - 1) % count($categories)];
+                $departmentName = $categoryDepartments[$category];
+                $department = $departments[$departmentName];
                 $template = $ticketTemplates[$category][($number - 1) % count($ticketTemplates[$category])];
                 $requester = $users[($number - 1) % $users->count()];
-                $assignedTechnician = $this->assignedTechnicianFor($status, $number, $technicians);
+                $assignedTechnician = $this->assignedTechnicianFor(
+                    $status,
+                    $number,
+                    $technicians[$departmentName]
+                );
                 $sla = $this->makeSlaDates($priority, $status, $number, $now);
 
                 $ticketId = DB::table('tickets')->insertGetId([
                     'user_id' => $requester->id,
                     'assigned_to_user_id' => $assignedTechnician?->id,
+                    'department_id' => $department->id,
                     'title' => $template[0],
                     'description' => $template[1] . ' Nomor referensi demo: ND-' . str_pad((string) $number, 4, '0', STR_PAD_LEFT) . '.',
                     'category' => $category,
@@ -264,7 +301,7 @@ class DatabaseSeeder extends Seeder
         });
     }
 
-    private function assignedTechnicianFor(string $status, int $number, $technicians): ?User
+    private function assignedTechnicianFor(string $status, int $number, User $technician): ?User
     {
         if ($status === 'open' && $number % 3 !== 0) {
             return null;
@@ -274,7 +311,7 @@ class DatabaseSeeder extends Seeder
             return null;
         }
 
-        return $technicians[($number - 1) % $technicians->count()];
+        return $technician;
     }
 
     private function makeSlaDates(string $priority, string $status, int $number, Carbon $now): array

@@ -165,11 +165,17 @@
 
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-                                <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Category</p>
+                                <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Department</p>
                                 <div class="mt-3">
-                                    <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset {{ $categoryClasses[$category] ?? $categoryClasses['other'] }}">
-                                        {{ $categoryLabels[$category] ?? $categoryLabels['other'] }}
-                                    </span>
+                                    @if ($ticket->department)
+                                        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-cyan-50 px-3 py-1 text-xs font-medium text-cyan-700 ring-1 ring-inset ring-cyan-100">
+                                            {{ $ticket->department->name }}
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-inset ring-slate-200">
+                                            No Department
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
 

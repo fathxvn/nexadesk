@@ -79,11 +79,12 @@
                     <table class="w-full table-fixed text-sm">
                         <thead class="border-b border-slate-200 bg-slate-50/70 text-xs font-medium uppercase tracking-wide text-slate-500">
                             <tr>
-                                <th class="w-[38%] px-5 py-3 text-left">Ticket</th>
-                                <th class="w-[14%] px-4 py-3 text-left">Category</th>
-                                <th class="w-[16%] px-4 py-3 text-left">State</th>
-                                <th class="w-[14%] px-4 py-3 text-left">SLA</th>
-                                <th class="w-[12%] px-4 py-3 text-left">Created</th>
+                                <th class="w-[30%] px-5 py-3 text-left">Ticket</th>
+                                <th class="w-[13%] px-4 py-3 text-left">Category</th>
+                                <th class="w-[15%] px-4 py-3 text-left">Department</th>
+                                <th class="w-[15%] px-4 py-3 text-left">State</th>
+                                <th class="w-[13%] px-4 py-3 text-left">SLA</th>
+                                <th class="w-[8%] px-4 py-3 text-left">Created</th>
                                 <th class="w-[6%] px-5 py-3 text-right">
                                     <span class="sr-only">Action</span>
                                 </th>
@@ -117,9 +118,21 @@
                                         </span>
                                     </td>
 
-                                    <td class="px-4 py-3">
-                                        <div class="flex flex-wrap gap-1.5">
-                                            @if ($ticket->status === 'open')
+                                    <td class="whitespace-nowrap px-4 py-3">
+                                            @if ($ticket->department)
+                                                <span class="inline-flex max-w-full items-center truncate whitespace-nowrap rounded-full bg-cyan-50 px-3 py-1 text-xs font-medium text-cyan-700 ring-1 ring-inset ring-cyan-100">
+                                                    {{ $ticket->department->name }}
+                                                </span>
+                                            @else
+                                                <span class="inline-flex max-w-full items-center truncate whitespace-nowrap rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-inset ring-slate-200">
+                                                    No Department
+                                                </span>
+                                            @endif
+                                        </td>
+
+                                        <td class="px-4 py-3">
+                                            <div class="flex flex-wrap gap-1.5">
+                                                @if ($ticket->status === 'open')
                                                 <span class="inline-flex items-center whitespace-nowrap rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-100">Open</span>
                                             @elseif ($ticket->status === 'in_progress')
                                                 <span class="inline-flex items-center whitespace-nowrap rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 ring-1 ring-inset ring-violet-200">In Progress</span>
@@ -159,7 +172,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                        <td colspan="6" class="px-6 py-14 text-center">
+                                        <td colspan="7" class="px-6 py-14 text-center">
                                         <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
                                             <x-heroicon-o-ticket class="h-6 w-6" />
                                         </div>

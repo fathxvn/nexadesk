@@ -43,6 +43,7 @@
                             <tr>
                                 <th class="w-[28%] px-5 py-3 text-left">Ticket</th>
                                 <th class="w-[12%] px-4 py-3 text-left">Category</th>
+                                <th class="w-[13%] px-4 py-3 text-left">Department</th>
                                 <th class="w-[14%] px-4 py-3 text-left">State</th>
                                 <th class="w-[12%] px-4 py-3 text-left">SLA</th>
                                 <th class="w-[20%] px-4 py-3 text-left">People</th>
@@ -75,9 +76,15 @@
                                     </td>
 
                                     <td class="whitespace-nowrap px-4 py-3">
-                                        <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset {{ $ticket->slaBadgeClasses() }}">
-                                            {{ $ticket->slaLabel() }}
-                                        </span>
+                                        @if ($ticket->department)
+                                            <span class="inline-flex rounded-full bg-cyan-50 px-3 py-1 text-xs font-medium text-cyan-700 ring-1 ring-inset ring-cyan-100">
+                                                {{ $ticket->department->name }}
+                                            </span>
+                                        @else
+                                            <span class="inline-flex rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-inset ring-slate-200">
+                                                No Department
+                                            </span>
+                                        @endif
                                     </td>
 
                                     <td class="px-4 py-3">
@@ -142,7 +149,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                        <td colspan="7" class="px-6 py-14 text-center">
+                                        <td colspan="8" class="px-6 py-14 text-center">
                                         <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
                                             <x-heroicon-o-ticket class="h-6 w-6" />
                                         </div>

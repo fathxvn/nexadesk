@@ -30,8 +30,7 @@ class TicketController extends Controller
 
     public function create()
     {
-        $departments = Department::orderBy('name')->get();
-        return view('tickets.create', compact('departments'));
+        return view('tickets.create');
     }
 
     public function store(Request $request)
@@ -42,15 +41,30 @@ class TicketController extends Controller
             'category' => 'required|in:network,hardware,software,email,account_access,printer,other',
             'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'priority' => 'required|in:low,medium,high',
-            'department_id' => ['nullable', 'exists:departments,id'],
         ]);
+
+        $categoryDepartmentMap = [
+            'network' => 'Network',
+            'hardware' => 'IT Support',
+            'printer' => 'IT Support',
+            'software' => 'Application',
+            'email' => 'Application',
+            'account_access' => 'Application',
+            'other' => 'IT Support',
+        ];
+
+        $department = Department::where(
+            'name',
+            $categoryDepartmentMap[$validated['category']]
+        )->firstOrFail();
 
         $ticketData = [
             'title' => $validated['title'],
             'description' => $validated['description'],
             'category' => $validated['category'],
+            'department_id' => $department->id,
             'priority' => $validated['priority'],
-            'department_id' => $validated['department_id'] ?? null,
+            'assigned_to_user_id' => null,
             'status' => 'open',
             'sla_started_at' => now(),
         ];

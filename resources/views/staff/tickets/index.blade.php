@@ -94,6 +94,7 @@
                                 <th class="w-[20%] px-4 py-3 text-left">People</th>
                                 <th class="w-[12%] px-4 py-3 text-left">Category</th>
                                 <th class="w-[14%] px-4 py-3 text-left">State</th>
+                                <th class="w-[13%] pc-4 py-3 text-left">Department</th>
                                 <th class="w-[12%] px-4 py-3 text-left">SLA</th>
                                 <th class="w-[8%] px-4 py-3 text-left">Created</th>
                                 <th class="w-[6%] px-5 py-3 text-right">
@@ -142,13 +143,16 @@
                                         </div>
                                     </td>
 
-                                    <td class="whitespace-nowrap px-4 py-3">
-                                        @php
-                                            $category = $ticket->category ?? 'other';
-                                        @endphp
-                                        <span class="inline-flex max-w-full items-center truncate whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset {{ $categoryClasses[$category] ?? $categoryClasses['other'] }}">
-                                            {{ $categoryLabels[$category] ?? $categoryLabels['other'] }}
-                                        </span>
+                                   <td class="whitespace-nowrap px-4 py-3">
+                                        @if ($ticket->department)
+                                            <span class="inline-flex max-w-full items-center truncate whitespace-nowrap rounded-full bg-cyan-50 px-3 py-1 text-xs font-medium text-cyan-700 ring-1 ring-inset ring-cyan-100">
+                                                {{ $ticket->department->name }}
+                                            </span>
+                                        @else
+                                            <span class="inline-flex max-w-full items-center truncate whitespace-nowrap rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-500 ring-1 ring-inset ring-slate-200">
+                                                No Department
+                                            </span>
+                                        @endif
                                     </td>
 
                                     <td class="px-4 py-3">
@@ -193,7 +197,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                            <td colspan="7" class="px-6 py-14 text-center">
+                                            <td colspan="8" class="px-6 py-14 text-center">
                                         <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
                                             <x-heroicon-o-ticket class="h-6 w-6" />
                                         </div>
