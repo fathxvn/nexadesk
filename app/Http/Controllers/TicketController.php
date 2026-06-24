@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use App\Models\TicketActivity;
 use App\Models\TicketInternalNote;
 use App\Models\User;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,7 +30,8 @@ class TicketController extends Controller
 
     public function create()
     {
-        return view('tickets.create');
+        $departments = Department::orderBy('name')->get();
+        return view('tickets.create', compact('departments'));
     }
 
     public function store(Request $request)
@@ -40,6 +42,7 @@ class TicketController extends Controller
             'category' => 'required|in:network,hardware,software,email,account_access,printer,other',
             'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'priority' => 'required|in:low,medium,high',
+            'department_id' => ['nullable', 'exists:departments,id'],
         ]);
 
         $ticketData = [
@@ -47,6 +50,7 @@ class TicketController extends Controller
             'description' => $validated['description'],
             'category' => $validated['category'],
             'priority' => $validated['priority'],
+            'department_id' => $validated['department_id'] ?? null,
             'status' => 'open',
             'sla_started_at' => now(),
         ];
@@ -86,6 +90,7 @@ class TicketController extends Controller
             'user', 
             'comments.user', 
             'assignedTechnician',
+            'department',
             'activities.user',
             ]);
 
@@ -102,11 +107,13 @@ class TicketController extends Controller
 
     public function edit(Ticket $ticket)
     {
+        $departments = Department::orderBy('name')->get();
+
         if ($ticket->user_id !== auth()->id()) {
             abort(403);
         }
 
-        return view('tickets.edit', compact('ticket'));
+        return view('tickets.edit', compact('ticket', 'departments'));
     }
 
     public function update(Request $request, Ticket $ticket)
@@ -187,7 +194,7 @@ class TicketController extends Controller
         }
 
         $tickets = $query
-            ->with(['user', 'assignedTechnician'])
+            ->with(['user', 'assignedTechnician', 'department'])
             ->latest()
             ->get();
 
@@ -204,7 +211,7 @@ class TicketController extends Controller
         }
 
         $tickets = $query
-            ->with(['user', 'assignedTechnician'])
+            ->with(['user', 'assignedTechnician', 'department'])
             ->latest()
             ->get();
 

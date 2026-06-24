@@ -19,6 +19,7 @@ class Ticket extends Model
         'sla_due_at',
         'sla_resolved_at',
         'sla_breached_at',
+        'department_id',
     ];
 
     protected $casts = [
@@ -31,6 +32,11 @@ class Ticket extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
     }
 
     public function comments()
