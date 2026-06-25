@@ -2,14 +2,17 @@
 
 namespace App\Services;
 
+use App\Mail\TicketReceivedAutoReply;
 use App\Models\Department;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Throwable;
 
 class CreateTicketFromEmailService
 {
@@ -23,7 +26,7 @@ class CreateTicketFromEmailService
             return $existingTicket;
         }
 
-        return DB::transaction(function () use ($payload) {
+        $ticket = DB::transaction(function () use ($payload) {
             $existingTicket = Ticket::where('email_message_id', $payload['message_id'])
                 ->lockForUpdate()
                 ->first();
@@ -79,6 +82,10 @@ class CreateTicketFromEmailService
 
             return $ticket;
         });
+
+        $this->sendAutoReply($ticket);
+
+        return $ticket;
     }
 
     private function normalize(array $email): array
@@ -143,5 +150,28 @@ class CreateTicketFromEmailService
             'software', 'email', 'account_access' => 'Application',
             default => 'IT Support',
         };
+    }
+
+    private function sendAutoReply(Ticket $ticket): void
+    {
+        try {
+            Mail::to($ticket->email_from)->send(
+                new TicketReceivedAutoReply($ticket)
+            );
+
+            $ticket->activities()->create([
+                'user_id' => null,
+                'type' => 'email_auto_reply_sent',
+                'description' => 'Ticket received auto reply sent to '.$ticket->email_from,
+            ]);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            $ticket->activities()->create([
+                'user_id' => null,
+                'type' => 'email_auto_reply_failed',
+                'description' => 'Ticket received auto reply failed for '.$ticket->email_from,
+            ]);
+        }
     }
 }

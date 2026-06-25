@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Mail\TicketReceivedAutoReply;
 use App\Models\Department;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\CreateTicketFromEmailService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
+use RuntimeException;
 use Tests\TestCase;
 
 class EmailTicketWorkflowTest extends TestCase
@@ -27,8 +30,14 @@ class EmailTicketWorkflowTest extends TestCase
             ->assertViewIs('staff.tickets.email-index')
             ->assertSee('Email queue ticket')
             ->assertDontSee('Web-only ticket')
+            ->assertSee('title="View Ticket"', false)
+            ->assertDontSee('email tickets</span>', false)
             ->assertSee(route('tickets.show', $emailTicket));
 
+        $this->assertStringContainsString(
+            '<x-heroicon-o-eye',
+            file_get_contents(resource_path('views/staff/tickets/email-index.blade.php'))
+        );
         $this->assertNotSame($emailTicket->id, $webTicket->id);
     }
 
@@ -53,6 +62,9 @@ class EmailTicketWorkflowTest extends TestCase
             ->get(route('tickets.show', $ticket))
             ->assertOk()
             ->assertSee('Compose Email Reply')
+            ->assertSee('Reply Template')
+            ->assertSee('Initial Response')
+            ->assertSee('Request Information')
             ->assertSee('sender@example.com')
             ->assertDontSee('email reply is not available');
     }
@@ -71,6 +83,7 @@ class EmailTicketWorkflowTest extends TestCase
 
     public function test_create_ticket_from_email_service_creates_ticket_and_prevents_duplicates(): void
     {
+        Mail::fake();
         $this->departments();
 
         $payload = [
@@ -103,6 +116,49 @@ class EmailTicketWorkflowTest extends TestCase
             'user_id' => null,
             'type' => 'email_imported',
             'description' => 'Ticket created from incoming email',
+        ]);
+        $this->assertDatabaseHas('ticket_activities', [
+            'ticket_id' => $firstTicket->id,
+            'type' => 'email_auto_reply_sent',
+        ]);
+
+        Mail::assertSent(TicketReceivedAutoReply::class, 1);
+        Mail::assertSent(TicketReceivedAutoReply::class, function (TicketReceivedAutoReply $mail) use ($firstTicket) {
+            return $mail->hasTo('new.sender@example.com')
+                && $mail->ticket->is($firstTicket)
+                && $mail->envelope()->subject === "[NexaDesk] Ticket Received - #{$firstTicket->id}";
+        });
+    }
+
+    public function test_ticket_remains_created_when_received_auto_reply_fails(): void
+    {
+        $this->departments();
+
+        Mail::shouldReceive('to')
+            ->once()
+            ->with('failed.sender@example.com')
+            ->andReturnSelf();
+        Mail::shouldReceive('send')
+            ->once()
+            ->andThrow(new RuntimeException('SMTP unavailable'));
+
+        $ticket = app(CreateTicketFromEmailService::class)->create([
+            'message_id' => '<auto-reply-failed@example.com>',
+            'from_email' => 'failed.sender@example.com',
+            'from_name' => 'Failed Sender',
+            'subject' => 'Laptop hardware issue',
+            'body' => 'The laptop cannot start.',
+            'received_at' => now(),
+        ]);
+
+        $this->assertDatabaseHas('tickets', [
+            'id' => $ticket->id,
+            'email_message_id' => '<auto-reply-failed@example.com>',
+        ]);
+        $this->assertDatabaseHas('ticket_activities', [
+            'ticket_id' => $ticket->id,
+            'type' => 'email_auto_reply_failed',
+            'description' => 'Ticket received auto reply failed for failed.sender@example.com',
         ]);
     }
 

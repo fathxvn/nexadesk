@@ -161,7 +161,33 @@
                     {{-- SECTION: COMPOSE EMAIL REPLY --}}
                     {{-- ========================================= --}}
                     @if (auth()->user()->isStaff() && $ticket->isEmailSource())
-                        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        @php
+                            $replyTemplateVariables = [
+                                'requester_name' => $ticket->email_from_name ?: ($ticket->user->name ?? 'User'),
+                                'ticket_id' => $ticket->id,
+                            ];
+
+                            $replyTemplates = [
+                                'INITIAL_RESPONSE' => "Halo {$replyTemplateVariables['requester_name']},\n\nTerima kasih telah menghubungi NexaDesk Support.\n\nTicket Anda telah kami terima dan sedang dalam proses peninjauan oleh tim kami.\n\nNomor Ticket:\n#{$replyTemplateVariables['ticket_id']}\n\nKami akan memberikan pembaruan secepat mungkin.\n\nSalam,\nNexaDesk Support Team",
+                                'INVESTIGATION' => "Halo {$replyTemplateVariables['requester_name']},\n\nKami sedang melakukan investigasi terhadap permasalahan yang Anda laporkan.\n\nSaat ini tim teknis sedang melakukan pengecekan lebih lanjut untuk menemukan penyebab dan solusi yang sesuai.\n\nKami akan menginformasikan perkembangan terbaru sesegera mungkin.\n\nSalam,\nNexaDesk Support Team",
+                                'REQUEST_INFORMATION' => "Halo {$replyTemplateVariables['requester_name']},\n\nUntuk membantu proses investigasi, kami memerlukan informasi tambahan:\n\n* Screenshot error jika ada\n* Waktu kejadian\n* Langkah yang menyebabkan masalah muncul\n\nSetelah informasi diterima, tim kami akan segera melanjutkan proses penanganan.\n\nSalam,\nNexaDesk Support Team",
+                                'RESOLVED' => "Halo {$replyTemplateVariables['requester_name']},\n\nPermasalahan yang Anda laporkan telah berhasil kami tangani.\n\nSilakan lakukan pengecekan kembali pada layanan atau sistem terkait.\n\nApabila kendala masih terjadi, silakan balas email ini agar ticket dapat kami tindak lanjuti kembali.\n\nSalam,\nNexaDesk Support Team",
+                                'CLOSED' => "Halo {$replyTemplateVariables['requester_name']},\n\nTicket ini kami tandai sebagai selesai dan ditutup.\n\nTerima kasih telah menggunakan layanan NexaDesk Support.\n\nSalam,\nNexaDesk Support Team",
+                            ];
+                        @endphp
+
+                        <div
+                            x-data="{
+                                templates: {{ \Illuminate\Support\Js::from($replyTemplates) }},
+                                message: {{ \Illuminate\Support\Js::from(old('message', '')) }},
+                                applyTemplate(key) {
+                                    if (key && this.templates[key]) {
+                                        this.message = this.templates[key];
+                                    }
+                                }
+                            }"
+                            class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+                        >
                             <div class="mb-5 flex items-center gap-3">
                                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
                                     <x-heroicon-o-paper-airplane class="h-5 w-5" />
@@ -198,6 +224,22 @@
                                 </div>
 
                                 <div>
+                                    <label for="email-reply-template" class="block text-sm font-medium text-slate-700">Reply Template</label>
+                                    <select
+                                        id="email-reply-template"
+                                        @change="applyTemplate($event.target.value)"
+                                        class="mt-2 w-full rounded-xl border-slate-300 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    >
+                                        <option value="">Select a reply template</option>
+                                        <option value="INITIAL_RESPONSE">Initial Response</option>
+                                        <option value="INVESTIGATION">Investigation</option>
+                                        <option value="REQUEST_INFORMATION">Request Information</option>
+                                        <option value="RESOLVED">Resolved</option>
+                                        <option value="CLOSED">Closed</option>
+                                    </select>
+                                </div>
+
+                                <div>
                                     <label for="email-reply-message" class="block text-sm font-medium text-slate-700">Message</label>
                                     <textarea
                                         id="email-reply-message"
@@ -206,8 +248,9 @@
                                         required
                                         maxlength="10000"
                                         placeholder="Write your reply to the sender..."
+                                        x-model="message"
                                         class="mt-2 w-full resize-y rounded-xl border-slate-300 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                    >{{ old('message') }}</textarea>
+                                    ></textarea>
 
                                     @error('message', 'emailReply')
                                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>

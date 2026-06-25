@@ -1,16 +1,13 @@
 <x-app-layout>
     <div class="min-h-screen bg-slate-50">
         <div class="mx-auto w-full max-w-none px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div class="mb-6">
                 <div>
                     <p class="text-sm font-medium text-indigo-600">Staff Workspace</p>
                     <h1 class="mt-1 text-2xl font-semibold tracking-tight text-slate-800 sm:text-3xl">Email Tickets</h1>
                     <p class="mt-2 text-sm text-slate-500">Support requests created from incoming email messages.</p>
                 </div>
 
-                <span class="inline-flex w-fit items-center rounded-full bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-100">
-                    {{ $tickets->count() }} email tickets
-                </span>
             </div>
 
             <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -73,9 +70,8 @@
                                         @endif
                                     </td>
                                     <td class="px-5 py-4 text-right">
-                                        <a href="{{ route('tickets.show', $ticket) }}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
-                                            Detail
-                                            <x-heroicon-o-arrow-right class="h-4 w-4" />
+                                        <a href="{{ route('tickets.show', $ticket) }}" title="View Ticket" aria-label="View Ticket" class="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                                            <x-heroicon-o-eye class="h-4 w-4" />
                                         </a>
                                     </td>
                                 </tr>
