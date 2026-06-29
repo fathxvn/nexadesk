@@ -110,6 +110,12 @@
                                     </td>
 
                                     <td class="px-4 py-3">
+                                        <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset {{ $ticket->slaBadgeClasses() }}">
+                                            {{ $ticket->slaLabel() }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-4 py-3">
                                         <div class="space-y-1">
                                             <div class="flex min-w-0 items-center gap-2">
                                                 <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[11px] font-semibold text-slate-600">
